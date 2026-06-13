@@ -16,5 +16,5 @@ class AppConfig(BaseSettings):
 def get_app_config() -> AppConfig:
     return AppConfig()
 
-settings = get_app_config()
 
+settings = get_app_config()

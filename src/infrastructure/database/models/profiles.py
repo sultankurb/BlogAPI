@@ -15,4 +15,3 @@ class ProfilesORM(BaseORM):
     first_name: Mapped[str] = mapped_column(Text(), nullable=True)
     last_name: Mapped[str] = mapped_column(Text(), nullable=True)
     biography: Mapped[str] = mapped_column(Text(), nullable=True)
-    

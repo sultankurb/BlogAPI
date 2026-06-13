@@ -5,7 +5,7 @@ from src.infrastructure.database.models.base import BaseORM
 
 
 class RolesORM(BaseORM):
-    __tablename__ = 'roles'
+    __tablename__ = "roles"
     pk: Mapped[int] = mapped_column(
         BigInteger, primary_key=True, autoincrement=True
     )

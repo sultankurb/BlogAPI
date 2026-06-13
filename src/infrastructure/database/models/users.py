@@ -6,14 +6,10 @@ from src.infrastructure.database.models.base import BaseORM
 
 
 class UsersORM(BaseORM):
-    __tablename__ = 'users'
+    __tablename__ = "users"
     pk: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    email: Mapped[str] = mapped_column(
-        Text()
-    )
-    password: Mapped[str] = mapped_column(
-        Text()
-    )
+    email: Mapped[str] = mapped_column(Text())
+    password: Mapped[str] = mapped_column(Text())
     status: Mapped[UserStatus] = mapped_column(
         Enum(UserStatus, native_enum=True),
         default=UserStatus.PENDING,
