@@ -1,12 +1,13 @@
 services:
   rediska:
-    image: redis
+    image: redis:8.8.0-alpine3.23
     restart: always
     container_name: rediska
     command: redis-server --aclfile /etc/redis/users.acl && redis-server --appendonly yes
+    ports:
+      - "0.0.0.0:6379:6379"
     volumes:
       - ./users.acl:/etc/redis/users.acl
-      - ./redis_data:/data/
     networks:
       - internal_network
 
@@ -15,9 +16,9 @@ services:
     container_name: pg_db
     env_file:
       - .env
+    ports:
+      - "0.0.0.0:5432:5432"
     restart: always
-    volumes:
-      - ./pg_data:/var/lib/postgresql/data
     networks:
       - internal_network
 
@@ -34,10 +35,6 @@ services:
       - rediska
     networks:
       - internal_network
-
-volumes:
-  redis_data:
-  pg_data:
 
 networks:
   internal_network:
