@@ -1,0 +1,44 @@
+services:
+  rediska:
+    image: redis
+    restart: always
+    container_name: rediska
+    command: redis-server --aclfile /etc/redis/users.acl && redis-server --appendonly yes
+    volumes:
+      - ./users.acl:/etc/redis/users.acl
+      - ./redis_data:/data/
+    networks:
+      - internal_network
+
+  pg_db:
+    image: postgres:17-alpine3.23
+    container_name: pg_db
+    env_file:
+      - .env
+    restart: always
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data
+    networks:
+      - internal_network
+
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: app
+    restart: always
+    volumes:
+      - ..:/app
+    depends_on:
+      - pg_db
+      - rediska
+    networks:
+      - internal_network
+
+volumes:
+  redis_data:
+  pg_data:
+
+networks:
+  internal_network:
+    driver: bridge

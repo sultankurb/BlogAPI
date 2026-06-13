@@ -1,0 +1,11 @@
+line-length = 79
+
+[lint]
+extend-select = [
+    "E501",
+    "I001",
+    "I002",
+    "FAST001",
+    "FAST002",
+    "FAST003",
+]
