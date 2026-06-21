@@ -11,6 +11,7 @@ class AppConfig(BaseSettings):
     )
     DATABASE_URL: str | None = None
     REDIS_URL: str | None = None
+    DEFAULT_USERS_ROLES: list[str] = []
 
 
 def get_app_config() -> AppConfig:
