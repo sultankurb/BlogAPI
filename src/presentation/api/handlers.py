@@ -7,6 +7,7 @@ from src.config.exception import (
     ForbiddenException,
     NotFoundException,
 )
+from src.presentation.api.v1.users import users_router
 
 
 def setup_exception_handlers(app: FastAPI) -> None:
@@ -34,3 +35,4 @@ def setup_exception_handlers(app: FastAPI) -> None:
 handler = APIRouter(
     prefix="/api",
 )
+handler.include_router(users_router, prefix="/v1")
