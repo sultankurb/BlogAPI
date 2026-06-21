@@ -7,7 +7,11 @@ from src.infrastructure.database.models.base import BaseORM
 
 class UsersORM(BaseORM):
     __tablename__ = "users"
-    pk: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    pk: Mapped[int] = mapped_column(
+        BigInteger,
+        primary_key=True,
+        autoincrement=True
+    )
     email: Mapped[str] = mapped_column(Text())
     password: Mapped[str] = mapped_column(Text())
     status: Mapped[UserStatus] = mapped_column(
