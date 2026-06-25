@@ -24,7 +24,7 @@ def upgrade() -> None:
     op.create_table(
         "roles",
         sa.Column("pk", sa.BigInteger(), autoincrement=True, nullable=False),
-        sa.Column("name", sa.Text(), nullable=False),
+        sa.Column("name", sa.Text(), nullable=False, unique=True),
         sa.Column(
             "created_at",
             sa.DateTime(),

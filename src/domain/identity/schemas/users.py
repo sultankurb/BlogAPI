@@ -6,8 +6,22 @@ class Profile(BaseModel):
 
 class UsersBaseModel(BaseModel):
     email: EmailStr
-    password: str
+
 
 
 class UsersCreateModel(UsersBaseModel, Profile):
-    pass
+    password: str
+
+class LoginSchemas(UsersBaseModel):
+    password: str
+
+
+class ProfileModel(Profile):
+    biography: str | None = None
+    first_name: str | None = None
+    last_name: str | None = None
+    user_pk: int
+
+
+class UserReadModel(UsersBaseModel):
+    profile: ProfileModel

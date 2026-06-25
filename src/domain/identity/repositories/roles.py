@@ -56,3 +56,7 @@ class RolesRepository(BaseRepository[RolesORM, RoleDTO]):
         answer = await self._delete_by_pk(pk=pk)
         return answer
 
+    async def get_role_by_name(self, name: str) -> RoleDTO | None:
+        result = await  self._get_by_filters(filed="name", value=name)
+        return self._to_dto(result)
+

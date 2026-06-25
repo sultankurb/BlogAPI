@@ -2,10 +2,12 @@ from typing import List
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from src.domain.identity.dto import (
     UserDTO,
     UsersFilters,
+    UsersROlesDTO,
     UserStatus,
     UserUpdateData,
 )
@@ -24,12 +26,39 @@ class UsersRepository(BaseRepository[UsersORM, UserDTO]):
         return UserDTO(
             pk=user_orm.pk,
             email=user_orm.email,
-            status=user_orm.status
+            status=user_orm.status,
+        )
+
+    @classmethod
+    def _to_dto_with_roles(cls, user_orm: UsersORM | None) -> UserDTO | None:
+        if user_orm is None:
+            return None
+
+        return UsersROlesDTO(
+            pk=user_orm.pk,
+            password=user_orm.password,
+            email=user_orm.email,
+            status=user_orm.status,
+            roles=[role.name for role in user_orm.roles]
         )
 
     async def get_user_by_email(self, email: str) -> UserDTO | None:
        result = await self._get_by_filters(filed="email", value=email)
        return self._to_dto(result)
+
+    async def get_user_by_email_with_roles(
+            self,
+            email: str
+    ) -> UserDTO | None:
+        stmt = (
+            select(self._model_cls)
+            .where(self._model_cls.email == email.lower())
+            .options(joinedload(self._model_cls.roles))
+        )
+        result = await self._session.execute(stmt)
+        return self._to_dto_with_roles(
+            user_orm=result.scalars().unique().first()
+        )
 
     async def get_filtered_users(
             self,

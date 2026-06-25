@@ -28,3 +28,8 @@ class UsersFilters:
 class UserUpdateData(TypedDict, total=False):
     email: str | None
     password: str | None
+
+@dataclass(frozen=True, slots=True)
+class UsersROlesDTO(UserDTO):
+    password: str
+    roles: list[str]

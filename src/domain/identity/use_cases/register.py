@@ -32,5 +32,10 @@ class UsersRegisterUseCase:
                 username=user.username,
                 user_pk=new_user.pk,
             )
+            role_pk = await uow.roles.get_role_by_name(name="user")
+            await uow.user_role.add_user_role(
+                user_pk=new_user.pk,
+                role_pk=role_pk.pk
+            )
             await uow.commit()
             return new_user.pk

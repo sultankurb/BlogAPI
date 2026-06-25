@@ -11,7 +11,9 @@ class ProfileRepository(BaseRepository):
         super().__init__(session=session, model_cls=ProfilesORM)
 
     @classmethod
-    def _to_dto(cls, obj: ProfilesORM) -> ProfileDTO:
+    def _to_dto(cls, obj: ProfilesORM | None) -> ProfileDTO | None:
+        if obj is None:
+            return None
         return ProfileDTO(
             user_pk=obj.user_pk,
             username=obj.username,
@@ -28,11 +30,12 @@ class ProfileRepository(BaseRepository):
         result = await self._add(obj=orm_to_add)
         return result
 
-    async def get_profile_by_username(self, username: str) -> ProfileDTO | None:
-        stmt = select(self._model_cls).where(
-            self._model_cls.username == username
-        )
-        result = await self._scalar_one_or_none(stmt=stmt)
-        if result is None:
-            return None
+    async def get_profile_by_username(
+            self, username: str
+    ) -> ProfileDTO | None:
+        result = await self._get_by_filters(filed="username", value=username)
+        return self._to_dto(obj=result)
+
+    async def get_profile_by_pk(self, pk: int) -> ProfileDTO | None:
+        result = await self._get_by_pk(pk=pk)
         return self._to_dto(obj=result)
