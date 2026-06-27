@@ -1,10 +1,11 @@
 from typing import List
 
-from sqlalchemy import func, select
+from sqlalchemy import func, insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from src.domain.identity.dto import (
+    RolesEnum,
     UserDTO,
     UsersFilters,
     UsersROlesDTO,
@@ -12,7 +13,7 @@ from src.domain.identity.dto import (
     UserUpdateData,
 )
 from src.infrastructure.database import BaseRepository
-from src.infrastructure.database.models import UsersORM
+from src.infrastructure.database.models import UserRoleORM, UsersORM
 
 
 class UsersRepository(BaseRepository[UsersORM, UserDTO]):
@@ -99,6 +100,12 @@ class UsersRepository(BaseRepository[UsersORM, UserDTO]):
             status=UserStatus.PENDING
         )
         await self._add(user_orm)
+        await self._session.execute(
+            insert(UserRoleORM).values(
+                user_pk=user_orm.pk,
+                role_pk=RolesEnum.USER.value
+            )
+        )
         return self._to_dto(user_orm)
 
     async def get_user_by_pk(self, pk: int) -> UserDTO | None:

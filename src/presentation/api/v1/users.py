@@ -1,10 +1,15 @@
 from fastapi import APIRouter, Response
 
 from src.domain.identity.schemas.token import Token
-from src.domain.identity.schemas.users import LoginSchemas, UsersCreateModel
+from src.domain.identity.schemas.users import (
+    LoginSchemas,
+    UserReadModel,
+    UsersCreateModel,
+)
 from src.presentation.api.v1.depends import (
     GetCurrentUserUseCaseDepends,
     UserLoginUseCaseDepends,
+    UserPKDepends,
     UserRegisterCaseDepends,
 )
 
@@ -39,10 +44,10 @@ async def login_user(
     return tokens
 
 
-@users_router.post(path="/get/current/user")
+@users_router.post(path="/get/current/user/", response_model=UserReadModel)
 async def get_current_user(
-        token: str,
+        user_pk: UserPKDepends,
         user_service: GetCurrentUserUseCaseDepends,
 ):
-    user = await user_service.execute(token=token)
+    user = await user_service.execute(user_pk=user_pk)
     return user

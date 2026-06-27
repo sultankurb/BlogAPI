@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import Enum
 from typing import Optional
 
 
@@ -10,4 +11,10 @@ class RoleDTO:
 @dataclass(frozen=True, slots=True)
 class RolesFilters:
     last_pk: Optional[int]
-    name: Optional[str]
+
+
+
+class RolesEnum(Enum):
+    USER = 1
+    ADMIN = 2
+    MODERATOR = 3

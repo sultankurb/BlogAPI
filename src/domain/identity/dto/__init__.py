@@ -5,11 +5,11 @@ __all__ = [
     'RolesFilters',
     'RoleDTO',
     'UserUpdateData',
-    'UsersRoles',
     "UsersROlesDTO",
+    "RolesEnum"
 ]
 
-from src.domain.identity.dto.roles import RoleDTO, RolesFilters
+from src.domain.identity.dto.roles import RoleDTO, RolesEnum, RolesFilters
 from src.domain.identity.dto.users import (
     UserDTO,
     UsersFilters,
@@ -17,4 +17,3 @@ from src.domain.identity.dto.users import (
     UserStatus,
     UserUpdateData,
 )
-from src.domain.identity.dto.users_roles import UsersRoles

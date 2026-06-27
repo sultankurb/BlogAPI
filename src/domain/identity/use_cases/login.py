@@ -9,8 +9,8 @@ class LoginUseCase:
     def __init__(
             self,
             uow: UnitOfWork,
-            jwt_service: JWTService = JWTService(),
-            password_service: PasswordService = PasswordService(),
+            jwt_service: JWTService,
+            password_service: PasswordService,
     ) -> None:
         self.uow = uow
         self._jwt_service = jwt_service
@@ -21,18 +21,21 @@ class LoginUseCase:
             user = await uow.users.get_user_by_email_with_roles(email=email)
             if user is None:
                 raise ApplicationException(
-                    message="Error there is no user with this email, check your email"
+                    message="Invalid email or password"
                 )
             if not self._password_service.verify_password(
                     password=password,
                     hashed_password=user.password
             ):
-                raise ApplicationException(message="Password is incorrect")
-            tokens = await self._jwt_service.create_user_session(
-                user_pk=user.pk,
-                roles=user.roles
-            )
-            return Token(
+                raise ApplicationException(message="Invalid email or password")
+            user_pk = user.pk
+            roles = user.roles
+
+        tokens = await self._jwt_service.create_user_session(
+            user_pk=user_pk,
+            roles=roles
+        )
+        return Token(
                 access_token=tokens["access_token"],
                 refresh_token=tokens["refresh_token"],
             )

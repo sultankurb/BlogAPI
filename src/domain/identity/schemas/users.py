@@ -1,5 +1,7 @@
 from pydantic import BaseModel, EmailStr
 
+from src.domain.identity.dto import UserStatus
+
 
 class Profile(BaseModel):
     username: str
@@ -25,3 +27,4 @@ class ProfileModel(Profile):
 
 class UserReadModel(UsersBaseModel):
     profile: ProfileModel
+    status: UserStatus

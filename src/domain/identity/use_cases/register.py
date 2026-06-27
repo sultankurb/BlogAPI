@@ -1,7 +1,17 @@
+import logging
+
+from sqlalchemy.exc import IntegrityError
+
 from src.config.exception import ApplicationException
-from src.domain.identity.schemas.users import UsersCreateModel
+from src.domain.identity.schemas.users import (
+    ProfileModel,
+    UserReadModel,
+    UsersCreateModel,
+)
 from src.domain.identity.services.password_service import PasswordService
 from src.infrastructure.database.uow import UnitOfWork
+
+logger = logging.getLogger(__name__)
 
 
 class UsersRegisterUseCase:
@@ -9,33 +19,43 @@ class UsersRegisterUseCase:
         self.uow = uow
         self.password_service = password_service
 
-    async def execute(self, user: UsersCreateModel):
-        async with self.uow as uow:
-            existing_user = await uow.users.get_user_by_email(
-                email=user.email
+    async def execute(self, user: UsersCreateModel) -> UserReadModel:
+        hashed_pwd = self.password_service.hash_password(
+            password=user.password
+        )
+        try:
+            async with self.uow as uow:
+                if await uow.users.get_user_by_email(email=user.email):
+                    raise ApplicationException(message="Email already exists")
+                if await uow.profiles.get_profile_by_username(
+                    username=user.username
+                ):
+                    raise ApplicationException(message="Username already exists")
+                new_user = await uow.users.create_user(
+                    email=user.email,
+                    password_hash=hashed_pwd,
+                )
+
+                await uow.profiles.create_profile(
+                    username=user.username,
+                    user_pk=new_user.pk,
+                )
+                await uow.commit()
+
+            return UserReadModel(
+                email=new_user.email,
+                status=new_user.status,
+                profile=ProfileModel(
+                    username=user.username,
+                    biography=None,
+                    first_name=None,
+                    last_name=None,
+                    user_pk=new_user.pk,
+                )
             )
-            if existing_user:
-                raise ApplicationException(message="Email already exists")
-            hashed_pwd = self.password_service.hash_password(
-                password=user.password
+        except IntegrityError as e:
+            raise ApplicationException(
+                message="Registration failed."
+                " Email or Username is already taken"
             )
-            new_user = await uow.users.create_user(
-                email=user.email,
-                password_hash=hashed_pwd,
-            )
-            existing_profile = await uow.profiles.get_profile_by_username(
-                username=user.username
-            )
-            if existing_profile:
-                raise ApplicationException(message="Username already exists")
-            await uow.profiles.create_profile(
-                username=user.username,
-                user_pk=new_user.pk,
-            )
-            role_pk = await uow.roles.get_role_by_name(name="user")
-            await uow.user_role.add_user_role(
-                user_pk=new_user.pk,
-                role_pk=role_pk.pk
-            )
-            await uow.commit()
-            return new_user.pk
+            logger.error(e)

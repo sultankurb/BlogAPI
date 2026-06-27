@@ -5,6 +5,7 @@ from typing import Any, List
 import jwt
 
 from src.config import settings
+from src.config.exception import ApplicationException
 from src.infrastructure.redis import redis_client
 
 PRIVATE_KEY = settings.jwt.private_key.read_text()
@@ -29,12 +30,15 @@ class JWTService:
         self._redis = redis
 
     def decode_token(self, token: str) -> dict[str, Any]:
-        decoded = jwt.decode(
+        try:
+            decoded = jwt.decode(
             jwt=token,
             key=self._public_key,
             algorithms=[self._algorithm]
-        )
-        return decoded
+            )
+            return decoded
+        except jwt.PyJWTError:
+            raise ApplicationException(message="Invalid Token")
 
     def _encode_token(self, payload: dict[str, Any]) -> str:
         to_encode = payload.copy()
