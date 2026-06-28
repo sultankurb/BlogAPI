@@ -3,6 +3,7 @@ name = "blogapi"
 version = "0.1.0"
 requires-python = ">=3.14"
 dependencies = [
+    "aiosmtplib>=5.1.2",
     "alembic>=1.18.4",
     "asyncpg>=0.31.0",
     "bcrypt>=5.0.0",
