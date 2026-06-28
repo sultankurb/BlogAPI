@@ -8,10 +8,14 @@ from src.domain.identity.services.password_service import (
     PasswordService,
     get_password_service,
 )
+from src.domain.identity.services.verification_service import (
+    VerificationService,
+)
 from src.domain.identity.use_cases.get_users import GetCurrentUserUseCase
 from src.domain.identity.use_cases.login import LoginUseCase
 from src.domain.identity.use_cases.register import UsersRegisterUseCase
 from src.infrastructure.database import UnitOfWork, session_factory
+from src.infrastructure.redis import redis_client
 
 
 def get_uow() ->UnitOfWork:
@@ -19,6 +23,9 @@ def get_uow() ->UnitOfWork:
 
 def get_jwt() -> JWTService:
     return JWTService()
+
+def get_verification() -> VerificationService:
+    return VerificationService(notification=None, redis=redis_client)
 
 
 

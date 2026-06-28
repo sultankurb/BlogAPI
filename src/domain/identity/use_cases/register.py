@@ -1,5 +1,6 @@
 import logging
 
+from fastapi import BackgroundTasks
 from sqlalchemy.exc import IntegrityError
 
 from src.config.exception import ApplicationException
@@ -9,22 +10,35 @@ from src.domain.identity.schemas.users import (
     UsersCreateModel,
 )
 from src.domain.identity.services.password_service import PasswordService
+from src.domain.identity.services.verification_service import (
+    VerificationService,
+)
 from src.infrastructure.database.uow import UnitOfWork
 
 logger = logging.getLogger(__name__)
 
 
 class UsersRegisterUseCase:
-    def __init__(self, uow: UnitOfWork, password_service: PasswordService):
-        self.uow = uow
-        self.password_service = password_service
+    def __init__(
+            self,
+            uow: UnitOfWork,
+            password_service: PasswordService,
+            verification_service: VerificationService,
+    ):
+        self._uow = uow
+        self._password_service = password_service
+        self._verification_service = verification_service
 
-    async def execute(self, user: UsersCreateModel) -> UserReadModel:
-        hashed_pwd = self.password_service.hash_password(
+    async def execute(
+            self,
+            user: UsersCreateModel,
+            background_tasks: BackgroundTasks
+    ) -> UserReadModel:
+        hashed_pwd = self._password_service.hash_password(
             password=user.password
         )
         try:
-            async with self.uow as uow:
+            async with self._uow as uow:
                 if await uow.users.get_user_by_email(email=user.email):
                     raise ApplicationException(message="Email already exists")
                 if await uow.profiles.get_profile_by_username(
@@ -42,6 +56,11 @@ class UsersRegisterUseCase:
                 )
                 await uow.commit()
 
+            await self._verification_service.verification_code(
+                email=new_user.email,
+                background_tasks=background_tasks
+            )
+
             return UserReadModel(
                 email=new_user.email,
                 status=new_user.status,
@@ -54,8 +73,8 @@ class UsersRegisterUseCase:
                 )
             )
         except IntegrityError as e:
+            logger.error(e)
             raise ApplicationException(
                 message="Registration failed."
                 " Email or Username is already taken"
             )
-            logger.error(e)
