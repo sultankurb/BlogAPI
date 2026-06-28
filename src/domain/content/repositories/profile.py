@@ -1,4 +1,5 @@
-from sqlalchemy import select
+from typing import Any, Mapping
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.content.dto import ProfileDTO
@@ -39,3 +40,12 @@ class ProfileRepository(BaseRepository):
     async def get_profile_by_pk(self, pk: int) -> ProfileDTO | None:
         result = await self._get_by_pk(pk=pk)
         return self._to_dto(obj=result)
+
+    async def update_profile(
+            self,
+            pk: int,
+            data: Mapping[str, Any]
+    ) -> ProfileDTO | None:
+        result = await self._update(pk=pk, data=data)
+        return self._to_dto(obj=result)
+
