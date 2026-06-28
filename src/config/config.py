@@ -20,6 +20,10 @@ class AppConfig(BaseSettings):
         private_key=PRIVATE_KEY_PATH,
         public_key=PUBLIC_KEY_PATH,
     )
+    ADMIN_USERNAME: str = ""
+    ADMIN_PASSWORD: str = ""
+    ADMIN_EMAIL: str = ""
+    environment: str = "development"
 
 
 def get_app_config() -> AppConfig:

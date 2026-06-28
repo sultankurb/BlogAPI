@@ -4,6 +4,7 @@ from fastapi import FastAPI
 
 from src.config import settings
 from src.domain.identity.use_cases.seed_roles import SeedRolesUseCase
+from src.domain.identity.use_cases.seed_user import SeedUserUseCase
 from src.infrastructure.database import UnitOfWork, session_factory
 from src.infrastructure.redis import init_redis_client, redis_client
 from src.presentation.api.handlers import handler, setup_exception_handlers
@@ -13,10 +14,14 @@ from src.presentation.api.handlers import handler, setup_exception_handlers
 async def lifespan(app: FastAPI):
     init_redis_client()
     uow = UnitOfWork(session_maker=session_factory)
-    use_case = SeedRolesUseCase(uow)
-
-    await use_case.execute(settings.DEFAULT_USERS_ROLES)
-
+    roles_use_case = SeedRolesUseCase(uow)
+    users_use_case = SeedUserUseCase(uow)
+    await roles_use_case.execute(settings.DEFAULT_USERS_ROLES)
+    await users_use_case.execute(
+        email=settings.ADMIN_EMAIL,
+        password=settings.ADMIN_PASSWORD,
+        username=settings.ADMIN_USERNAME
+    )
     yield
     if redis_client:
         await redis_client.aclose()

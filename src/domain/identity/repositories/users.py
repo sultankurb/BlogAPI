@@ -92,18 +92,20 @@ class UsersRepository(BaseRepository[UsersORM, UserDTO]):
 
     async def create_user(
             self, email: str,
-            password_hash: str
+            password_hash: str,
+            role: int = RolesEnum.USER.value,
+            status: UserStatus = UserStatus.PENDING,
     ) -> UserDTO | None:
         user_orm = UsersORM(
             email=email,
             password=password_hash,
-            status=UserStatus.PENDING
+            status=status
         )
         await self._add(user_orm)
         await self._session.execute(
             insert(UserRoleORM).values(
                 user_pk=user_orm.pk,
-                role_pk=RolesEnum.USER.value
+                role_pk=role
             )
         )
         return self._to_dto(user_orm)
