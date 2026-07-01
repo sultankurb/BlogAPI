@@ -26,7 +26,12 @@ class AppConfig(BaseSettings):
     environment: str = "development"
     EMAIL_HOST: str = "0.0.0.0"
     EMAIL_PORT: int = 1025
-
+    CORS_ALLOWED_ORIGINS: list[str] = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://0.0.0.0:3000",
+        "http://127.0.0.1:8000",
+    ]
 
 def get_app_config() -> AppConfig:
     return AppConfig()
