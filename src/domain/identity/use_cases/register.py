@@ -18,7 +18,7 @@ from src.infrastructure.database.uow import UnitOfWork
 logger = logging.getLogger(__name__)
 
 
-class UsersRegisterUseCase:
+class RegisterUseCase:
     def __init__(
             self,
             uow: UnitOfWork,

@@ -7,11 +7,11 @@ from src.domain.identity.schemas.users import (
     UsersCreateModel,
 )
 from src.presentation.api.identity.dependencies import (
-    GetCurrentUserUseCaseDepends,
-    UserActivateUseCaseDepends,
-    UserLoginUseCaseDepends,
+    GetCurrentUserDepends,
+    UserActivateDepends,
+    UserLoginDepends,
     UserPKDepends,
-    UserRegisterCaseDepends,
+    UserRegisterDepends,
 )
 
 users_router = APIRouter(
@@ -27,7 +27,7 @@ users_router = APIRouter(
 )
 async def register_new_user(
         user: UsersCreateModel,
-        user_service: UserRegisterCaseDepends,
+        user_service: UserRegisterDepends,
         background_tasks: BackgroundTasks,
 ):
     user = await  user_service.execute(
@@ -39,7 +39,7 @@ async def register_new_user(
 @users_router.post(path="/login", response_model=Token)
 async def login_user(
         login_schema: LoginSchemas,
-        user_login: UserLoginUseCaseDepends,
+        user_login: UserLoginDepends,
         response: Response,
 ):
     tokens = await user_login.execute(
@@ -57,7 +57,7 @@ async def login_user(
 @users_router.post(path="/get/current/user/", response_model=UserReadModel)
 async def get_current_user(
         user_pk: UserPKDepends,
-        user_service: GetCurrentUserUseCaseDepends,
+        user_service: GetCurrentUserDepends,
 ):
     user = await user_service.execute(user_pk=user_pk)
     return user
@@ -65,7 +65,7 @@ async def get_current_user(
 @users_router.post(path="/verify/current/user/")
 async def verify_user(
         code: int,
-        user_service: UserActivateUseCaseDepends,
+        user_service: UserActivateDepends,
         user_pk: UserPKDepends
 ):
     await user_service.execute(code=code, user_pk=user_pk)

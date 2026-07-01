@@ -7,7 +7,7 @@ from src.infrastructure.database import UnitOfWork
 logger = logging.getLogger(__name__)
 
 
-class SeedUserUseCase:
+class RootUserUseCase:
     def __init__(self, uow: UnitOfWork, password_service: PasswordService):
         self._uow = uow
         self.__password_service = password_service

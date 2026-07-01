@@ -3,6 +3,7 @@ import logging
 from redis.asyncio import Redis
 from sqlalchemy.exc import SQLAlchemyError
 
+from domain.identity.services.password_service import PasswordService
 from src.config.exception import ApplicationException
 from src.domain.identity.dto import UserStatus, UserUpdateData
 from src.infrastructure.database import UnitOfWork
@@ -10,7 +11,7 @@ from src.infrastructure.database import UnitOfWork
 logger = logging.getLogger(__name__)
 
 
-class ActivateUserUseCase:
+class UpdateStatusUseCase:
     def __init__(self, uow: UnitOfWork, redis: Redis) -> None:
         self._uow = uow
         self._redis = redis

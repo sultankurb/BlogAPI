@@ -4,19 +4,17 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from redis.asyncio import Redis
 
+from src.domain.identity.services import VerificationService
 from src.domain.identity.services.jwt_service import JWTService
 from src.domain.identity.services.password_service import (
     PasswordService,
 )
-from src.domain.identity.services.verification_service import (
-    VerificationService,
+from src.domain.identity.use_cases import (
+    GetCurrentUserUseCase,
+    LoginUseCase,
+    RegisterUseCase,
+    UpdateStatusUseCase,
 )
-from src.domain.identity.use_cases.activate_user_usecase import (
-    ActivateUserUseCase,
-)
-from src.domain.identity.use_cases.get_users import GetCurrentUserUseCase
-from src.domain.identity.use_cases.login import LoginUseCase
-from src.domain.identity.use_cases.register import UsersRegisterUseCase
 from src.infrastructure.database import UnitOfWork, get_uow
 from src.infrastructure.notifications.depends import get_notification_service
 from src.infrastructure.redis import connection
@@ -59,20 +57,20 @@ async def get_current_user_id(
 def get_register_use_case(
     uow: UoWDep,
     redis: Redis = Depends(get_redis_client),
-) -> UsersRegisterUseCase:
+) -> RegisterUseCase:
     hasher = PasswordService()
     verify_service = VerificationService(
         notification=get_notification_service(),
         redis=redis
     )
-    return UsersRegisterUseCase(
+    return RegisterUseCase(
         uow=uow,
         password_service=hasher,
         verification_service=verify_service,
     )
 
-UserRegisterCaseDepends = Annotated[
-    UsersRegisterUseCase,
+UserRegisterDepends = Annotated[
+    RegisterUseCase,
     Depends(get_register_use_case)
 ]
 
@@ -88,14 +86,14 @@ def get_login_use_case(
         jwt_service=jwt_service
     )
 
-UserLoginUseCaseDepends = Annotated[LoginUseCase, Depends(get_login_use_case)]
+UserLoginDepends = Annotated[LoginUseCase, Depends(get_login_use_case)]
 
 def get_user_use_case(
         uow: UoWDep
 ):
     return GetCurrentUserUseCase(uow=uow)
 
-GetCurrentUserUseCaseDepends = Annotated[
+GetCurrentUserDepends = Annotated[
     GetCurrentUserUseCase,
     Depends(get_user_use_case)
 ]
@@ -116,10 +114,10 @@ UserPKDepends = Annotated[int, Depends(check_user_black_wall)]
 def get_activate_service(
         uow: UoWDep,
         redis: RedisDep,
-) -> ActivateUserUseCase:
-    return ActivateUserUseCase(uow=uow, redis=redis)
+) -> UpdateStatusUseCase:
+    return UpdateStatusUseCase(uow=uow, redis=redis)
 
-UserActivateUseCaseDepends = Annotated[
-    ActivateUserUseCase,
+UserActivateDepends = Annotated[
+    UpdateStatusUseCase,
     Depends(get_activate_service)
 ]
