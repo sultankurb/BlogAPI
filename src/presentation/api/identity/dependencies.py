@@ -2,12 +2,11 @@ from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from redis.asyncio import Redis
 
-from src.domain.identity.services import VerificationService
-from src.domain.identity.services.jwt_service import JWTService
-from src.domain.identity.services.password_service import (
+from src.domain.identity.services import (
+    JWTService,
     PasswordService,
+    VerificationService,
 )
 from src.domain.identity.use_cases import (
     GetCurrentUserUseCase,
@@ -15,25 +14,9 @@ from src.domain.identity.use_cases import (
     RegisterUseCase,
     UpdateStatusUseCase,
 )
-from src.infrastructure.database import UnitOfWork, get_uow
 from src.infrastructure.notifications.depends import get_notification_service
-from src.infrastructure.redis import connection
+from src.presentation.api.dependecies import RedisDep, UoWDep
 
-
-def get_redis_client():
-    return connection.redis_client
-
-
-def get_verification() -> VerificationService:
-    return VerificationService(
-        notification=get_notification_service(),
-        redis=connection.redis_client
-    )
-
-
-
-UoWDep = Annotated[UnitOfWork, Depends(get_uow)]
-RedisDep = Annotated[Redis, Depends(get_redis_client)]
 security = HTTPBearer()
 
 
@@ -56,7 +39,7 @@ async def get_current_user_id(
 
 def get_register_use_case(
     uow: UoWDep,
-    redis: Redis = Depends(get_redis_client),
+    redis: RedisDep,
 ) -> RegisterUseCase:
     hasher = PasswordService()
     verify_service = VerificationService(
