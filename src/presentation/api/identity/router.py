@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, BackgroundTasks, Response, status
 
 from src.domain.identity.schemas.token import Token
 from src.domain.identity.schemas.users import (
@@ -6,11 +6,12 @@ from src.domain.identity.schemas.users import (
     UserReadModel,
     UsersCreateModel,
 )
-from src.presentation.api.v1.depends import (
+from src.presentation.api.identity.dependencies import (
     GetCurrentUserUseCaseDepends,
     UserLoginUseCaseDepends,
     UserPKDepends,
     UserRegisterCaseDepends,
+    UserActivateUseCaseDepends
 )
 
 users_router = APIRouter(
@@ -18,13 +19,21 @@ users_router = APIRouter(
 )
 
 
-@users_router.post("/register/new/user")
+@users_router.post(
+    path="/register/new/user",
+    status_code=status.HTTP_201_CREATED,
+    response_model=UserReadModel,
+)
 async def register_new_user(
         user: UsersCreateModel,
-        user_service: UserRegisterCaseDepends
+        user_service: UserRegisterCaseDepends,
+        background_tasks: BackgroundTasks,
 ):
-    user_pk = await  user_service.execute(user=user)
-    return {"user": user_pk}
+    user = await  user_service.execute(
+        user=user,
+        background_tasks=background_tasks
+    )
+    return user
 
 @users_router.post(path="/login", response_model=Token)
 async def login_user(
@@ -51,3 +60,11 @@ async def get_current_user(
 ):
     user = await user_service.execute(user_pk=user_pk)
     return user
+
+@users_router.post(path="/verify/current/user/")
+async def verify_user(
+        code: int,
+        user_service: UserActivateUseCaseDepends,
+        user_pk: UserPKDepends
+):
+    await user_service.execute(code=code, user_pk=user_pk)

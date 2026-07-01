@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from src.domain.content.repositories.profile import ProfileRepository
 from src.domain.identity.repositories.roles import RolesRepository
 from src.domain.identity.repositories.users import UsersRepository
-from src.domain.identity.repositories.users_roles import UsersRolesRepository
+from src.infrastructure.database.connection import session_factory
 
 
 class UnitOfWork:
@@ -14,7 +14,6 @@ class UnitOfWork:
         self._users: UsersRepository | None = None
         self._profiles: ProfileRepository | None = None
         self._roles: RolesRepository | None = None
-        self._user_roles: UsersRolesRepository | None = None
 
     async def __aenter__(self):
         self.session = self.session_maker()
@@ -46,8 +45,6 @@ class UnitOfWork:
             self._roles = RolesRepository(self.session)
         return self._roles
 
-    @property
-    def user_role(self) -> UsersRolesRepository:
-        if self._user_roles is None:
-            self._user_roles = UsersRolesRepository(self.session)
-        return self._user_roles
+
+def get_uow() -> UnitOfWork:
+    return UnitOfWork(session_maker=session_factory)

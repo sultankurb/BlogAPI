@@ -4,9 +4,8 @@ from src.infrastructure.notifications.abstract import (
 
 
 class ProductionNotificationInfraStructure(AbstractNotificationInfraStructure):
-    @classmethod
     async def send(
-            cls,
+            self,
             to: str,
             title: str,
             text: str,

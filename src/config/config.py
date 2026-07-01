@@ -24,6 +24,8 @@ class AppConfig(BaseSettings):
     ADMIN_PASSWORD: str = ""
     ADMIN_EMAIL: str = ""
     environment: str = "development"
+    EMAIL_HOST: str = "0.0.0.0"
+    EMAIL_PORT: int = 1025
 
 
 def get_app_config() -> AppConfig:

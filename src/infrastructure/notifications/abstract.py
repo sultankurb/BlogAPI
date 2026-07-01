@@ -2,10 +2,9 @@ from abc import ABC, abstractmethod
 
 
 class AbstractNotificationInfraStructure(ABC):
-    @classmethod
     @abstractmethod
     async def send(
-            cls,
+            self,
             to: str,
             title: str,
             text: str,

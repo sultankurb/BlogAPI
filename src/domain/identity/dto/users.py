@@ -28,6 +28,7 @@ class UsersFilters:
 class UserUpdateData(TypedDict, total=False):
     email: str | None
     password: str | None
+    status: UserStatus
 
 @dataclass(frozen=True, slots=True)
 class UsersROlesDTO(UserDTO):

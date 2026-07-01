@@ -5,11 +5,11 @@ from src.infrastructure.database import UnitOfWork
 
 
 class GetCurrentUserUseCase:
-    def __init__(self, ouw: UnitOfWork):
-        self._ouw = ouw
+    def __init__(self, uow: UnitOfWork):
+        self._uow = uow
 
     async def execute(self,user_pk: int) -> UserReadModel:
-        async with self._ouw as uow:
+        async with self._uow as uow:
             user = await uow.users.get_user_by_pk(
                 pk=user_pk
             )

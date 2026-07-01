@@ -1,0 +1,125 @@
+from typing import Annotated
+
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from redis.asyncio import Redis
+
+from src.domain.identity.services.jwt_service import JWTService
+from src.domain.identity.services.password_service import (
+    PasswordService,
+)
+from src.domain.identity.services.verification_service import (
+    VerificationService,
+)
+from src.domain.identity.use_cases.activate_user_usecase import (
+    ActivateUserUseCase,
+)
+from src.domain.identity.use_cases.get_users import GetCurrentUserUseCase
+from src.domain.identity.use_cases.login import LoginUseCase
+from src.domain.identity.use_cases.register import UsersRegisterUseCase
+from src.infrastructure.database import UnitOfWork, get_uow
+from src.infrastructure.notifications.depends import get_notification_service
+from src.infrastructure.redis import connection
+
+
+def get_redis_client():
+    return connection.redis_client
+
+
+def get_verification() -> VerificationService:
+    return VerificationService(
+        notification=get_notification_service(),
+        redis=connection.redis_client
+    )
+
+
+
+UoWDep = Annotated[UnitOfWork, Depends(get_uow)]
+RedisDep = Annotated[Redis, Depends(get_redis_client)]
+security = HTTPBearer()
+
+
+async def get_current_user_id(
+    redis: RedisDep,
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> int:
+    token = credentials.credentials
+    try:
+        jwt_service =  JWTService(redis=redis)
+        payload = jwt_service.decode_token(token=token)
+        user_id = int(payload["sub"])
+        return user_id
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+        )
+
+
+def get_register_use_case(
+    uow: UoWDep,
+    redis: Redis = Depends(get_redis_client),
+) -> UsersRegisterUseCase:
+    hasher = PasswordService()
+    verify_service = VerificationService(
+        notification=get_notification_service(),
+        redis=redis
+    )
+    return UsersRegisterUseCase(
+        uow=uow,
+        password_service=hasher,
+        verification_service=verify_service,
+    )
+
+UserRegisterCaseDepends = Annotated[
+    UsersRegisterUseCase,
+    Depends(get_register_use_case)
+]
+
+def get_login_use_case(
+        redis: RedisDep,
+        uow: UoWDep,
+):
+    password = PasswordService()
+    jwt_service = JWTService(redis=redis)
+    return LoginUseCase(
+        uow=uow,
+        password_service=password,
+        jwt_service=jwt_service
+    )
+
+UserLoginUseCaseDepends = Annotated[LoginUseCase, Depends(get_login_use_case)]
+
+def get_user_use_case(
+        uow: UoWDep
+):
+    return GetCurrentUserUseCase(uow=uow)
+
+GetCurrentUserUseCaseDepends = Annotated[
+    GetCurrentUserUseCase,
+    Depends(get_user_use_case)
+]
+
+
+async def check_user_black_wall(
+    redis: RedisDep,
+    user_pk: int = Depends(get_current_user_id),
+):
+    check = await redis.get(f"black:list:{user_pk}")
+    if check is not None:
+        raise HTTPException(status_code=403, detail="User already blacklisted")
+    return user_pk
+
+UserPKDepends = Annotated[int, Depends(check_user_black_wall)]
+
+
+def get_activate_service(
+        uow: UoWDep,
+        redis: RedisDep,
+) -> ActivateUserUseCase:
+    return ActivateUserUseCase(uow=uow, redis=redis)
+
+UserActivateUseCaseDepends = Annotated[
+    ActivateUserUseCase,
+    Depends(get_activate_service)
+]

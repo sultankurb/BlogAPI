@@ -1,11 +1,12 @@
 from src.config import settings
-from src.infrastructure.notifications import (
+from src.infrastructure.notifications.abstract import (
     AbstractNotificationInfraStructure,
-    MailpitNotificationService,
+)
+from src.infrastructure.notifications.local import MailpitNotificationService
+from src.infrastructure.notifications.production import (
     ProductionNotificationInfraStructure,
 )
 
-# Ленивая инициализация, чтобы не плодить объекты
 _notification_service: AbstractNotificationInfraStructure | None = None
 
 def get_notification_service() -> AbstractNotificationInfraStructure:

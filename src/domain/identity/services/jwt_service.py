@@ -3,10 +3,11 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, List
 
 import jwt
+from redis.asyncio import Redis
 
 from src.config import settings
 from src.config.exception import ApplicationException
-from src.infrastructure.redis import redis_client
+from src.infrastructure.redis import connection
 
 PRIVATE_KEY = settings.jwt.private_key.read_text()
 PUBLIC_KEY = settings.jwt.public_key.read_text()
@@ -15,12 +16,12 @@ PUBLIC_KEY = settings.jwt.public_key.read_text()
 class JWTService:
     def __init__(
             self,
+            redis: Redis,
             private_key: str =PRIVATE_KEY,
             public_key: str = PUBLIC_KEY,
             algorithm: str = settings.jwt.algorithm,
             access_expire_minutes: timedelta = settings.jwt.token_expire_minutes,
             refresh_expire_days: timedelta = settings.jwt.refresh_expire_days,
-            redis = redis_client
     ) -> None:
         self._private_key = private_key
         self._public_key = public_key
@@ -75,11 +76,13 @@ class JWTService:
         refresh_token = self._create_refresh_token()
         refresh_token_expire = int(self._refresh_expire.total_seconds())
         async with self._redis.pipeline() as pipe:
-            pipe.setex(
-                f"refresh_token:{refresh_token}", refresh_token_expire, user_pk
+            await pipe.setex(
+                f"refresh_token:{refresh_token}",
+                refresh_token_expire,
+                user_pk
             )
-            pipe.sadd(f"user_sessions:{user_pk}", refresh_token)
-            pipe.expire(f"user_sessions:{user_pk}", refresh_token_expire)
+            await pipe.sadd(f"user_sessions:{user_pk}", refresh_token)
+            await pipe.expire(f"user_sessions:{user_pk}", refresh_token_expire)
             await pipe.execute()
 
         return {"access_token": access_token, "refresh_token": refresh_token}
