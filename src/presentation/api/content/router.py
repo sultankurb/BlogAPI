@@ -1,0 +1,9 @@
+from fastapi import APIRouter
+
+from src.presentation.api.content.profiles_router import profiles_router
+
+content_router = APIRouter(
+    prefix="/content",
+    tags=["content"],
+)
+content_router.include_router(profiles_router)
