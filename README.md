@@ -14,7 +14,7 @@
     git clone https://github.com/sultankurb/BlogAPI.git
 
 ## The last step is to run
-    cd BlogAPI/docker
-    docker compose up -d
+    sudo chmod +x start.sh
+    ./start.sh
 
 # API points
