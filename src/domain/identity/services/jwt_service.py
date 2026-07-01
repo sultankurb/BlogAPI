@@ -15,13 +15,13 @@ PUBLIC_KEY = settings.jwt.public_key.read_text()
 
 class JWTService:
     def __init__(
-            self,
-            redis: Redis,
-            private_key: str =PRIVATE_KEY,
-            public_key: str = PUBLIC_KEY,
-            algorithm: str = settings.jwt.algorithm,
-            access_expire_minutes: timedelta = settings.jwt.token_expire_minutes,
-            refresh_expire_days: timedelta = settings.jwt.refresh_expire_days,
+        self,
+        redis: Redis,
+        private_key: str = PRIVATE_KEY,
+        public_key: str = PUBLIC_KEY,
+        algorithm: str = settings.jwt.algorithm,
+        access_expire_minutes: timedelta = settings.jwt.token_expire_minutes,
+        refresh_expire_days: timedelta = settings.jwt.refresh_expire_days,
     ) -> None:
         self._private_key = private_key
         self._public_key = public_key
@@ -33,9 +33,7 @@ class JWTService:
     def decode_token(self, token: str) -> dict[str, Any]:
         try:
             decoded = jwt.decode(
-            jwt=token,
-            key=self._public_key,
-            algorithms=[self._algorithm]
+                jwt=token, key=self._public_key, algorithms=[self._algorithm]
             )
             return decoded
         except jwt.PyJWTError:
@@ -62,7 +60,7 @@ class JWTService:
             "roles": user_roles,
         }
         return self._encode_token(payload=jwt_payload)
-    
+
     @staticmethod
     def _create_refresh_token():
         return secrets.token_hex(32)
@@ -77,9 +75,7 @@ class JWTService:
         refresh_token_expire = int(self._refresh_expire.total_seconds())
         async with self._redis.pipeline() as pipe:
             await pipe.setex(
-                f"refresh_token:{refresh_token}",
-                refresh_token_expire,
-                user_pk
+                f"refresh_token:{refresh_token}", refresh_token_expire, user_pk
             )
             await pipe.sadd(f"user_sessions:{user_pk}", refresh_token)
             await pipe.expire(f"user_sessions:{user_pk}", refresh_token_expire)

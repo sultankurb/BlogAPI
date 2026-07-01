@@ -1,8 +1,8 @@
 __all__ = [
-    'AbstractNotificationInfraStructure',
-    'MailpitNotificationService',
-    'ProductionNotificationInfraStructure',
-    'get_notification_service',
+    "AbstractNotificationInfraStructure",
+    "MailpitNotificationService",
+    "ProductionNotificationInfraStructure",
+    "get_notification_service",
 ]
 
 from src.infrastructure.notifications.abstract import (

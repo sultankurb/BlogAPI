@@ -41,17 +41,14 @@ class UsersRepository(BaseRepository[UsersORM, UserDTO]):
             password=user_orm.password,
             email=user_orm.email,
             status=user_orm.status,
-            roles=[role.name for role in user_orm.roles]
+            roles=[role.name for role in user_orm.roles],
         )
 
     async def get_user_by_email(self, email: str) -> UserDTO | None:
-       result = await self._get_by_filters(filed="email", value=email)
-       return self._to_dto(result)
+        result = await self._get_by_filters(filed="email", value=email)
+        return self._to_dto(result)
 
-    async def get_user_by_email_with_roles(
-            self,
-            email: str
-    ) -> UserDTO | None:
+    async def get_user_by_email_with_roles(self, email: str) -> UserDTO | None:
         stmt = (
             select(self._model_cls)
             .where(self._model_cls.email == email.lower())
@@ -63,9 +60,9 @@ class UsersRepository(BaseRepository[UsersORM, UserDTO]):
         )
 
     async def get_filtered_users(
-            self,
-            filters: UsersFilters,
-            limit: int,
+        self,
+        filters: UsersFilters,
+        limit: int,
     ) -> List[UserDTO | None]:
         stmt = select(self._model_cls).limit(limit)
 
@@ -80,34 +77,24 @@ class UsersRepository(BaseRepository[UsersORM, UserDTO]):
         if filters.last_seen_pk is not None:
             stmt = stmt.where(self._model_cls.pk < filters.last_seen_pk)
 
-
         stmt = stmt.order_by(self._model_cls.pk.desc())
         stmt = stmt.limit(50)
 
         result = await self._session.scalars(stmt)
         users_db = result.all()
-        return [
-            self._to_dto(user_orm=u)
-            for u in users_db
-        ]
+        return [self._to_dto(user_orm=u) for u in users_db]
 
     async def create_user(
-            self, email: str,
-            password_hash: str,
-            role: int = RolesEnum.USER.value,
-            status: UserStatus = UserStatus.PENDING,
+        self,
+        email: str,
+        password_hash: str,
+        role: int = RolesEnum.USER.value,
+        status: UserStatus = UserStatus.PENDING,
     ) -> UserDTO | None:
-        user_orm = UsersORM(
-            email=email,
-            password=password_hash,
-            status=status
-        )
+        user_orm = UsersORM(email=email, password=password_hash, status=status)
         await self._add(user_orm)
         await self._session.execute(
-            insert(UserRoleORM).values(
-                user_pk=user_orm.pk,
-                role_pk=role
-            )
+            insert(UserRoleORM).values(user_pk=user_orm.pk, role_pk=role)
         )
         return self._to_dto(user_orm)
 
@@ -121,9 +108,7 @@ class UsersRepository(BaseRepository[UsersORM, UserDTO]):
         await self._delete_by_pk(pk=pk)
 
     async def update_user_by_pk(
-            self,
-            user_pk: int,
-            user_data: UserUpdateData
+        self, user_pk: int, user_data: UserUpdateData
     ) -> UserDTO | None:
         result = await self._update(pk=user_pk, data=user_data)
         return self._to_dto(user_orm=result)

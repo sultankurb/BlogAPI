@@ -1,4 +1,4 @@
-__all__ = ['ProfileDataUpdate', 'ProfileFilter', 'ProfileDTO']
+__all__ = ["ProfileDataUpdate", "ProfileFilter", "ProfileDTO"]
 
 from src.domain.content.dto.profiles import (
     ProfileDataUpdate,

@@ -6,13 +6,14 @@ from src.domain.identity.dto import UserStatus
 class Profile(BaseModel):
     username: str
 
+
 class UsersBaseModel(BaseModel):
     email: EmailStr
 
 
-
 class UsersCreateModel(UsersBaseModel, Profile):
     password: str
+
 
 class LoginSchemas(UsersBaseModel):
     password: str

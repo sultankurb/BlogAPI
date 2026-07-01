@@ -15,7 +15,6 @@ class ProfileDTO:
 class ProfileFilter:
     user_pk: Optional[int]
     username: Optional[str]
-    
 
 
 class ProfileDataUpdate(TypedDict, total=False):

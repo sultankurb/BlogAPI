@@ -7,11 +7,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 OrmModel = TypeVar("OrmModel")
 DTO = TypeVar("DTO")
 
+
 class BaseRepository(Generic[OrmModel, DTO], ABC):
     def __init__(self, session: AsyncSession, model_cls: Type[OrmModel]):
         self._session = session
         self._model_cls = model_cls
-
 
     @classmethod
     @abstractmethod
@@ -28,9 +28,8 @@ class BaseRepository(Generic[OrmModel, DTO], ABC):
         return obj
 
     async def _get_by_filters(self, filed: str, value: Any) -> OrmModel | None:
-        stmt = (
-            select(self._model_cls)
-            .where(getattr(self._model_cls, filed) == value)
+        stmt = select(self._model_cls).where(
+            getattr(self._model_cls, filed) == value
         )
         orm_obj = await self._scalar_one_or_none(stmt)
         return orm_obj
@@ -44,13 +43,14 @@ class BaseRepository(Generic[OrmModel, DTO], ABC):
         return await self._session.get(self._model_cls, pk)
 
     async def _update(self, pk: int, data: Mapping[str, Any]) -> OrmModel:
-       stmt = (
-           update(self._model_cls)
-           .where(self._model_cls.pk == pk)
-           .values(**data).returning(self._model_cls)
-       )
-       result = await self._scalar_one_or_none(stmt)
-       return result
+        stmt = (
+            update(self._model_cls)
+            .where(self._model_cls.pk == pk)
+            .values(**data)
+            .returning(self._model_cls)
+        )
+        result = await self._scalar_one_or_none(stmt)
+        return result
 
     async def _delete_by_pk(self, pk: int) -> bool:
         obj = await self._get_by_pk(pk)

@@ -35,7 +35,7 @@ class UpdateStatusUseCase:
                     user_pk=user_pk,
                     user_data=UserUpdateData(
                         status=UserStatus.ACTIVE,
-                    )
+                    ),
                 )
                 await uow.commit()
         except SQLAlchemyError as e:

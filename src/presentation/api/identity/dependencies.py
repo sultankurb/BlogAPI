@@ -26,7 +26,7 @@ async def get_current_user_id(
 ) -> int:
     token = credentials.credentials
     try:
-        jwt_service =  JWTService(redis=redis)
+        jwt_service = JWTService(redis=redis)
         payload = jwt_service.decode_token(token=token)
         user_id = int(payload["sub"])
         return user_id
@@ -43,8 +43,7 @@ def get_register_use_case(
 ) -> RegisterUseCase:
     hasher = PasswordService()
     verify_service = VerificationService(
-        notification=get_notification_service(),
-        redis=redis
+        notification=get_notification_service(), redis=redis
     )
     return RegisterUseCase(
         uow=uow,
@@ -52,33 +51,32 @@ def get_register_use_case(
         verification_service=verify_service,
     )
 
+
 UserRegisterDepends = Annotated[
-    RegisterUseCase,
-    Depends(get_register_use_case)
+    RegisterUseCase, Depends(get_register_use_case)
 ]
 
+
 def get_login_use_case(
-        redis: RedisDep,
-        uow: UoWDep,
+    redis: RedisDep,
+    uow: UoWDep,
 ):
     password = PasswordService()
     jwt_service = JWTService(redis=redis)
     return LoginUseCase(
-        uow=uow,
-        password_service=password,
-        jwt_service=jwt_service
+        uow=uow, password_service=password, jwt_service=jwt_service
     )
+
 
 UserLoginDepends = Annotated[LoginUseCase, Depends(get_login_use_case)]
 
-def get_user_use_case(
-        uow: UoWDep
-):
+
+def get_user_use_case(uow: UoWDep):
     return GetCurrentUserUseCase(uow=uow)
 
+
 GetCurrentUserDepends = Annotated[
-    GetCurrentUserUseCase,
-    Depends(get_user_use_case)
+    GetCurrentUserUseCase, Depends(get_user_use_case)
 ]
 
 
@@ -91,16 +89,17 @@ async def check_user_black_wall(
         raise HTTPException(status_code=403, detail="User already blacklisted")
     return user_pk
 
+
 UserPKDepends = Annotated[int, Depends(check_user_black_wall)]
 
 
 def get_activate_service(
-        uow: UoWDep,
-        redis: RedisDep,
+    uow: UoWDep,
+    redis: RedisDep,
 ) -> UpdateStatusUseCase:
     return UpdateStatusUseCase(uow=uow, redis=redis)
 
+
 UserActivateDepends = Annotated[
-    UpdateStatusUseCase,
-    Depends(get_activate_service)
+    UpdateStatusUseCase, Depends(get_activate_service)
 ]

@@ -19,7 +19,7 @@ async def lifespan(app: FastAPI):
     await users_use_case.execute(
         email=settings.ADMIN_EMAIL,
         password=settings.ADMIN_PASSWORD,
-        username=settings.ADMIN_USERNAME
+        username=settings.ADMIN_USERNAME,
     )
     yield
     if connection.redis_client:

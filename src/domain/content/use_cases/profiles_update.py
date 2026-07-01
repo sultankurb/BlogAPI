@@ -7,10 +7,7 @@ class ProfilesUpdateUseCase:
         self._uow = uow
 
     async def execute(
-            self,
-            pk: int,
-            data: ProfileUpdatedModel,
-            partial: bool = False
+        self, pk: int, data: ProfileUpdatedModel, partial: bool = False
     ) -> ProfileReadModel:
         data.model_dump(exclude_unset=partial)
         async with self._uow as uow:
@@ -20,5 +17,5 @@ class ProfilesUpdateUseCase:
             first_name=result.first_name,
             last_name=result.last_name,
             biograph=result.biograph,
-            username=result.username
+            username=result.username,
         )

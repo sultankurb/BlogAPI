@@ -9,6 +9,7 @@ from src.infrastructure.notifications.production import (
 
 _notification_service: AbstractNotificationInfraStructure | None = None
 
+
 def get_notification_service() -> AbstractNotificationInfraStructure:
     global _notification_service
     if _notification_service is None:

@@ -32,6 +32,7 @@ def setup_exception_handlers(app: FastAPI) -> None:
     ):
         return JSONResponse(status_code=400, content={"error": exc.message})
 
+
 handler = APIRouter(
     prefix="/api",
 )

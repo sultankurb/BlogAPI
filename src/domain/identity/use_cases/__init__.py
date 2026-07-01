@@ -8,10 +8,10 @@ from src.domain.identity.use_cases.seed_roles import SeedRolesUseCase
 from src.domain.identity.use_cases.seed_user import RootUserUseCase
 
 __all__ = [
-    'RootUserUseCase',
-    'RegisterUseCase',
-    'UpdateStatusUseCase',
-    'SeedRolesUseCase',
-    'LoginUseCase',
-    'GetCurrentUserUseCase',
+    "RootUserUseCase",
+    "RegisterUseCase",
+    "UpdateStatusUseCase",
+    "SeedRolesUseCase",
+    "LoginUseCase",
+    "GetCurrentUserUseCase",
 ]

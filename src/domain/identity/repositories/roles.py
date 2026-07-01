@@ -24,7 +24,7 @@ class RolesRepository(BaseRepository[RolesORM, RoleDTO]):
         )
 
     async def get_filtered_roles(
-            self, filters: RolesFilters
+        self, filters: RolesFilters
     ) -> List[RoleDTO] | None:
         stmt = select(self._model_cls)
         if filters.last_pk is not None:
@@ -33,10 +33,7 @@ class RolesRepository(BaseRepository[RolesORM, RoleDTO]):
             stmt = stmt.where(self._model_cls.name == filters.name)
         result = await self._session.scalars(stmt)
         roles_db = result.all()
-        return [
-            RoleDTO(pk=r.pk, name=r.name)
-            for r in roles_db
-        ]
+        return [RoleDTO(pk=r.pk, name=r.name) for r in roles_db]
 
     async def create_role(self, name: str) -> RoleDTO | None:
         role_orm = RolesORM(name=name)
@@ -57,6 +54,5 @@ class RolesRepository(BaseRepository[RolesORM, RoleDTO]):
         return answer
 
     async def get_role_by_name(self, name: str) -> RoleDTO | None:
-        result = await  self._get_by_filters(filed="name", value=name)
+        result = await self._get_by_filters(filed="name", value=name)
         return self._to_dto(result)
-

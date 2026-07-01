@@ -5,8 +5,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from src.config.jwt_setup import JWTConfig
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-PRIVATE_KEY_PATH = BASE_DIR / 'certificates' / 'private-key.pem'
-PUBLIC_KEY_PATH = BASE_DIR / 'certificates' / 'public-key.pem'
+PRIVATE_KEY_PATH = BASE_DIR / "certificates" / "private-key.pem"
+PUBLIC_KEY_PATH = BASE_DIR / "certificates" / "public-key.pem"
 
 
 class AppConfig(BaseSettings):
@@ -32,6 +32,7 @@ class AppConfig(BaseSettings):
         "http://0.0.0.0:3000",
         "http://127.0.0.1:8000",
     ]
+
 
 def get_app_config() -> AppConfig:
     return AppConfig()

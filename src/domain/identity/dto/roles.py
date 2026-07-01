@@ -8,10 +8,10 @@ class RoleDTO:
     pk: int
     name: str
 
+
 @dataclass(frozen=True, slots=True)
 class RolesFilters:
     last_pk: Optional[int]
-
 
 
 class RolesEnum(Enum):

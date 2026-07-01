@@ -12,13 +12,9 @@ profiles_router = APIRouter(
 
 @profiles_router.patch(path="/update/profile/")
 async def update_user_profile(
-        pk: UserPKDepends,
-        profile: ProfileUpdatedModel,
-        profile_service: ProfileUpdateDepends
+    pk: UserPKDepends,
+    profile: ProfileUpdatedModel,
+    profile_service: ProfileUpdateDepends,
 ):
-    result = await profile_service.execute(
-        pk=pk,
-        data=profile
-    )
+    result = await profile_service.execute(pk=pk, data=profile)
     return result
-

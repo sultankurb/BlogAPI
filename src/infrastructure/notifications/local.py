@@ -10,11 +10,7 @@ from src.infrastructure.notifications.abstract import (
 
 class MailpitNotificationService(AbstractNotificationInfraStructure):
     async def send(
-            self,
-            to: str,
-            title: str,
-            text: str,
-            from_who: str
+        self, to: str, title: str, text: str, from_who: str
     ) -> None:
         message = EmailMessage()
         message["Subject"] = title
@@ -22,7 +18,5 @@ class MailpitNotificationService(AbstractNotificationInfraStructure):
         message["From"] = from_who
         message.set_content(text)
         await aiosmtplib.send(
-            message,
-            hostname=settings.EMAIL_HOST,
-            port=settings.EMAIL_PORT
+            message, hostname=settings.EMAIL_HOST, port=settings.EMAIL_PORT
         )

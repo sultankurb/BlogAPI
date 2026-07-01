@@ -26,46 +26,42 @@ users_router = APIRouter(
     response_model=UserReadModel,
 )
 async def register_new_user(
-        user: UsersCreateModel,
-        user_service: UserRegisterDepends,
-        background_tasks: BackgroundTasks,
+    user: UsersCreateModel,
+    user_service: UserRegisterDepends,
+    background_tasks: BackgroundTasks,
 ):
-    user = await  user_service.execute(
-        user=user,
-        background_tasks=background_tasks
+    user = await user_service.execute(
+        user=user, background_tasks=background_tasks
     )
     return user
 
+
 @users_router.post(path="/login", response_model=Token)
 async def login_user(
-        login_schema: LoginSchemas,
-        user_login: UserLoginDepends,
-        response: Response,
+    login_schema: LoginSchemas,
+    user_login: UserLoginDepends,
+    response: Response,
 ):
     tokens = await user_login.execute(
-        email=login_schema.email,
-        password=login_schema.password
+        email=login_schema.email, password=login_schema.password
     )
     response.set_cookie(
-        key="access_token",
-        value=tokens.access_token,
-        httponly=True
+        key="access_token", value=tokens.access_token, httponly=True
     )
     return tokens
 
 
 @users_router.post(path="/get/current/user/", response_model=UserReadModel)
 async def get_current_user(
-        user_pk: UserPKDepends,
-        user_service: GetCurrentUserDepends,
+    user_pk: UserPKDepends,
+    user_service: GetCurrentUserDepends,
 ):
     user = await user_service.execute(user_pk=user_pk)
     return user
 
+
 @users_router.post(path="/verify/current/user/")
 async def verify_user(
-        code: int,
-        user_service: UserActivateDepends,
-        user_pk: UserPKDepends
+    code: int, user_service: UserActivateDepends, user_pk: UserPKDepends
 ):
     await user_service.execute(code=code, user_pk=user_pk)

@@ -1,12 +1,12 @@
 __all__ = [
-    'UserStatus',
-    'UserDTO',
-    'UsersFilters',
-    'RolesFilters',
-    'RoleDTO',
-    'UserUpdateData',
+    "UserStatus",
+    "UserDTO",
+    "UsersFilters",
+    "RolesFilters",
+    "RoleDTO",
+    "UserUpdateData",
     "UsersROlesDTO",
-    "RolesEnum"
+    "RolesEnum",
 ]
 
 from src.domain.identity.dto.roles import RoleDTO, RolesEnum, RolesFilters

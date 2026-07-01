@@ -7,7 +7,9 @@ from src.infrastructure.database.connection import session_factory
 
 
 class UnitOfWork:
-    def __init__(self, session_maker: async_sessionmaker[AsyncSession]) -> None:
+    def __init__(
+        self, session_maker: async_sessionmaker[AsyncSession]
+    ) -> None:
         self.session_maker = session_maker
         self.session: AsyncSession | None = None
 

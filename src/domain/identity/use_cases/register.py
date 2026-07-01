@@ -20,19 +20,17 @@ logger = logging.getLogger(__name__)
 
 class RegisterUseCase:
     def __init__(
-            self,
-            uow: UnitOfWork,
-            password_service: PasswordService,
-            verification_service: VerificationService,
+        self,
+        uow: UnitOfWork,
+        password_service: PasswordService,
+        verification_service: VerificationService,
     ):
         self._uow = uow
         self._password_service = password_service
         self._verification_service = verification_service
 
     async def execute(
-            self,
-            user: UsersCreateModel,
-            background_tasks: BackgroundTasks
+        self, user: UsersCreateModel, background_tasks: BackgroundTasks
     ) -> UserReadModel:
         hashed_pwd = self._password_service.hash_password(
             password=user.password
@@ -44,7 +42,9 @@ class RegisterUseCase:
                 if await uow.profiles.get_profile_by_username(
                     username=user.username
                 ):
-                    raise ApplicationException(message="Username already exists")
+                    raise ApplicationException(
+                        message="Username already exists"
+                    )
                 new_user = await uow.users.create_user(
                     email=user.email,
                     password_hash=hashed_pwd,
@@ -57,8 +57,7 @@ class RegisterUseCase:
                 await uow.commit()
 
             await self._verification_service.verification_code(
-                email=new_user.email,
-                background_tasks=background_tasks
+                email=new_user.email, background_tasks=background_tasks
             )
 
             return UserReadModel(
@@ -70,7 +69,7 @@ class RegisterUseCase:
                     first_name=None,
                     last_name=None,
                     user_pk=new_user.pk,
-                )
+                ),
             )
         except IntegrityError as e:
             logger.error(e)

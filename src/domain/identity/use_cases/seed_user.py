@@ -22,10 +22,9 @@ class RootUserUseCase:
                 email=email,
                 password_hash=self.__password_service.hash_password(password),
                 role=RolesEnum.ADMIN.value,
-                status=UserStatus.ACTIVE
+                status=UserStatus.ACTIVE,
             )
             await uow.profiles.create_profile(
-                user_pk=admin.pk,
-                username=username
+                user_pk=admin.pk, username=username
             )
             await uow.commit()

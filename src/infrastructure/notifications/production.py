@@ -5,10 +5,6 @@ from src.infrastructure.notifications.abstract import (
 
 class ProductionNotificationInfraStructure(AbstractNotificationInfraStructure):
     async def send(
-            self,
-            to: str,
-            title: str,
-            text: str,
-            from_who: str
+        self, to: str, title: str, text: str, from_who: str
     ) -> None:
         raise NotImplementedError()

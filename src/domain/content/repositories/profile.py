@@ -32,7 +32,7 @@ class ProfileRepository(BaseRepository):
         return result
 
     async def get_profile_by_username(
-            self, username: str
+        self, username: str
     ) -> ProfileDTO | None:
         result = await self._get_by_filters(filed="username", value=username)
         return self._to_dto(obj=result)
@@ -42,10 +42,7 @@ class ProfileRepository(BaseRepository):
         return self._to_dto(obj=result)
 
     async def update_profile(
-            self,
-            pk: int,
-            data: Mapping[str, Any]
+        self, pk: int, data: Mapping[str, Any]
     ) -> ProfileDTO | None:
         result = await self._update(pk=pk, data=data)
         return self._to_dto(obj=result)
-

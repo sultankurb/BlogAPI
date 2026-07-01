@@ -11,6 +11,5 @@ def get_profile_update(uow: UoWDep) -> ProfilesUpdateUseCase:
 
 
 ProfileUpdateDepends = Annotated[
-    ProfilesUpdateUseCase,
-    Depends(get_profile_update)
+    ProfilesUpdateUseCase, Depends(get_profile_update)
 ]
