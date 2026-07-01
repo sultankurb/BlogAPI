@@ -1,6 +1,16 @@
-__all__ = ["BaseORM", "UsersORM", "UserRoleORM", "ProfilesORM", "RolesORM"]
+__all__ = [
+    "BaseORM",
+    "UsersORM",
+    "UserRoleORM",
+    "ProfilesORM",
+    "RolesORM",
+    "PostsORM",
+    "CommentsORM",
+]
 
 from src.infrastructure.database.models.base import BaseORM
+from src.infrastructure.database.models.comments import CommentsORM
+from src.infrastructure.database.models.posts import PostsORM
 from src.infrastructure.database.models.profiles import ProfilesORM
 from src.infrastructure.database.models.roles import RolesORM
 from src.infrastructure.database.models.users import UsersORM

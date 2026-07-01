@@ -9,6 +9,8 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from src.config import settings
 from src.infrastructure.database.models import (
     BaseORM,
+    CommentsORM,
+    PostsORM,
     ProfilesORM,
     RolesORM,
     UserRoleORM,
