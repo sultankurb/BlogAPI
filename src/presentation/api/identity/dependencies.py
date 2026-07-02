@@ -23,13 +23,13 @@ security = HTTPBearer()
 async def get_current_user_id(
     redis: RedisDep,
     credentials: HTTPAuthorizationCredentials = Depends(security),
-) -> int:
+) -> dict:
     token = credentials.credentials
     try:
         jwt_service = JWTService(redis=redis)
         payload = jwt_service.decode_token(token=token)
-        user_id = int(payload["sub"])
-        return user_id
+        return payload
+
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -82,12 +82,12 @@ GetCurrentUserDepends = Annotated[
 
 async def check_user_black_wall(
     redis: RedisDep,
-    user_pk: int = Depends(get_current_user_id),
+    user: dict = Depends(get_current_user_id),
 ):
-    check = await redis.get(f"black:list:{user_pk}")
+    check = await redis.get(f"black:list:{user["sub"]}")
     if check is not None:
         raise HTTPException(status_code=403, detail="User already blacklisted")
-    return user_pk
+    return user
 
 
 UserPKDepends = Annotated[int, Depends(check_user_black_wall)]
