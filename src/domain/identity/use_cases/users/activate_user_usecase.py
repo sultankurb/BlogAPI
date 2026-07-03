@@ -3,16 +3,15 @@ import logging
 from redis.asyncio import Redis
 from sqlalchemy.exc import SQLAlchemyError
 
-from domain.identity.services.password_service import PasswordService
 from src.config.exception import ApplicationException
-from src.domain.identity.dto import UserStatus, UserUpdateData
-from src.infrastructure.database import UnitOfWork
+from src.domain.identity.schemas.users import UserStatus
+from src.domain.identity.use_cases.uow import IdentityUow
 
 logger = logging.getLogger(__name__)
 
 
 class UpdateStatusUseCase:
-    def __init__(self, uow: UnitOfWork, redis: Redis) -> None:
+    def __init__(self, uow: IdentityUow, redis: Redis) -> None:
         self._uow = uow
         self._redis = redis
 
@@ -33,9 +32,7 @@ class UpdateStatusUseCase:
                     )
                 await uow.users.update_user_by_pk(
                     user_pk=user_pk,
-                    user_data=UserUpdateData(
-                        status=UserStatus.ACTIVE,
-                    ),
+                    user_data={"status": UserStatus.ACTIVE}
                 )
                 await uow.commit()
         except SQLAlchemyError as e:

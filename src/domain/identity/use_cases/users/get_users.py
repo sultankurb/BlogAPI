@@ -1,18 +1,21 @@
-import src.config.exception
-from src.domain.identity.dto import UserStatus
-from src.domain.identity.schemas.users import ProfileModel, UserReadModel
-from src.infrastructure.database import UnitOfWork
+from src.config.exception import ForbiddenException
+from src.domain.identity.schemas.users import (
+    ProfileModel,
+    UserReadModel,
+    UserStatus,
+)
+from src.domain.identity.use_cases.uow import IdentityUow
 
 
 class GetCurrentUserUseCase:
-    def __init__(self, uow: UnitOfWork):
+    def __init__(self, uow: IdentityUow) -> None:
         self._uow = uow
 
     async def execute(self, user_pk: int) -> UserReadModel:
         async with self._uow as uow:
             user = await uow.users.get_user_by_pk(pk=user_pk)
             if user.status != UserStatus.ACTIVE:
-                raise src.config.exception.ForbiddenException(
+                raise ForbiddenException(
                     message="You are not verified user"
                 )
             profile = await uow.profiles.get_profile_by_pk(pk=user_pk)

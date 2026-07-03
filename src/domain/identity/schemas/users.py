@@ -1,6 +1,20 @@
+from enum import Enum
+from typing import Optional
+
 from pydantic import BaseModel, EmailStr
 
-from src.domain.identity.dto import UserStatus
+
+class UserStatus(str, Enum):
+    ACTIVE = "active"
+    PENDING = "pending"
+    BANNED = "banned"
+    DELETED = "deleted"
+
+
+class UsersFilters(BaseModel):
+    email: Optional[str]
+    status: Optional[UserStatus]
+    last_seen_pk: Optional[int]
 
 
 class Profile(BaseModel):

@@ -1,3 +1,3 @@
-from src.domain.content.use_cases.profiles_update import ProfilesUpdateUseCase
+from domain.content.use_cases.profile.update import ProfilesUpdateUseCase
 
 __all__ = ["ProfilesUpdateUseCase"]

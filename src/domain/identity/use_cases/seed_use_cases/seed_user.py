@@ -1,14 +1,15 @@
 import logging
 
-from src.domain.identity.dto import RolesEnum, UserStatus
+from src.domain.identity.schemas.roles import RolesEnum
+from src.domain.identity.schemas.users import UserStatus
 from src.domain.identity.services.password_service import PasswordService
-from src.infrastructure.database import UnitOfWork
+from src.domain.identity.use_cases.uow import IdentityUow
 
 logger = logging.getLogger(__name__)
 
 
 class RootUserUseCase:
-    def __init__(self, uow: UnitOfWork, password_service: PasswordService):
+    def __init__(self, uow: IdentityUow, password_service: PasswordService):
         self._uow = uow
         self.__password_service = password_service
 

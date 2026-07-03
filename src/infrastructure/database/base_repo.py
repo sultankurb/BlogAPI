@@ -5,18 +5,12 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 OrmModel = TypeVar("OrmModel")
-DTO = TypeVar("DTO")
 
 
-class BaseRepository(Generic[OrmModel, DTO], ABC):
+class BaseRepository(Generic[OrmModel]):
     def __init__(self, session: AsyncSession, model_cls: Type[OrmModel]):
         self._session = session
         self._model_cls = model_cls
-
-    @classmethod
-    @abstractmethod
-    def _to_dto(cls, obj: OrmModel | None) -> DTO | None:
-        pass
 
     async def _scalar_one_or_none(self, stmt) -> OrmModel | None:
         result = await self._session.execute(stmt)

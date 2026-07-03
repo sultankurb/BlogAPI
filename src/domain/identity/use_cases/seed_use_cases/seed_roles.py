@@ -1,8 +1,8 @@
-from src.infrastructure.database import UnitOfWork
+from src.domain.identity.use_cases.uow import IdentityUow
 
 
 class SeedRolesUseCase:
-    def __init__(self, uow: UnitOfWork):
+    def __init__(self, uow: IdentityUow) -> None:
         self.uow = uow
 
     async def execute(self, roles: list[str]) -> None:
