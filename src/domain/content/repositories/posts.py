@@ -1,4 +1,4 @@
-from typing import List
+from typing import Sequence
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,20 +6,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.domain.content.schemas.posts import (
     PostsCreate,
     PostsFilters,
-    PostsRead,
     PostsUpdate,
 )
 from src.infrastructure.database.base_repo import BaseRepository
 from src.infrastructure.database.models import PostsORM
 
 
-class PostsRepository(BaseRepository[PostsORM, PostsRead]):
+class PostsRepository(BaseRepository[PostsORM]):
     def __init__(self, session: AsyncSession):
         super().__init__(session, model_cls=PostsORM)
-
-    @classmethod
-    def _to_dto(cls, obj: PostsORM | None) -> PostsRead | None:
-        pass
 
     async def get_post_by_pk(self, pk: int) -> PostsORM | None:
         post = await self._get_by_pk(pk=pk)
@@ -28,7 +23,7 @@ class PostsRepository(BaseRepository[PostsORM, PostsRead]):
     async def get_posts(
             self,
             posts_filter: PostsFilters
-    ):
+    ) -> Sequence[PostsORM]:
         stmt = select(self._model_cls)
 
         if posts_filter.slug is not None:
@@ -51,7 +46,7 @@ class PostsRepository(BaseRepository[PostsORM, PostsRead]):
             self,
             post: PostsCreate,
             author_pk: int,
-    ):
+    ) -> PostsORM | None:
         post_orm = PostsORM(
             title=post.title,
             slug=post.slug,
@@ -71,7 +66,7 @@ class PostsRepository(BaseRepository[PostsORM, PostsRead]):
             self,
             pk: int,
             post: PostsUpdate,
-    ) -> PostsORM:
+    ) -> PostsORM | None:
         result = await self._update(
             pk=pk,
             data=post.model_dump(exclude_unset=True)

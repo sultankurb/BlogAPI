@@ -6,7 +6,7 @@ from src.infrastructure.database.base_repo import BaseRepository
 from src.infrastructure.database.models import ProfilesORM
 
 
-class ProfileRepository(BaseRepository):
+class ProfileRepository(BaseRepository[ProfilesORM]):
     def __init__(self, session: AsyncSession):
         super().__init__(session=session, model_cls=ProfilesORM)
 
@@ -29,7 +29,7 @@ class ProfileRepository(BaseRepository):
         return result
 
     async def get_profile_by_pk(self, pk: int) -> ProfilesORM | None:
-        result = await self._get_by_pk(pk=pk)
+        result = await self._get_by_filters(filed="user_pk", value=pk)
         return result
 
     async def update_profile(

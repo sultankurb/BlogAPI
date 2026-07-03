@@ -29,7 +29,7 @@ class UsersRepository(BaseRepository[UsersORM]):
             .options(joinedload(self._model_cls.roles))
         )
         result = await self._session.execute(stmt)
-        return result.scalar_one_or_none()
+        return result.scalars().unique().first()
 
     async def get_filtered_users(
         self,

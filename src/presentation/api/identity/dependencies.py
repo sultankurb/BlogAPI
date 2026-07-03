@@ -14,11 +14,17 @@ from src.domain.identity.use_cases import (
     RegisterUseCase,
     UpdateStatusUseCase,
 )
+from src.domain.identity.use_cases.uow import IdentityUow
+from src.infrastructure.database import session_factory
 from src.infrastructure.notifications.depends import get_notification_service
-from src.presentation.api.dependecies import RedisDep, UoWDep
+from src.presentation.api.dependecies import RedisDep
 
 security = HTTPBearer()
 
+def get_identity_uow() -> IdentityUow:
+    return IdentityUow(session=session_factory)
+
+IdentityUowDep = Annotated[IdentityUow, Depends(get_identity_uow)]
 
 async def get_current_user_id(
     redis: RedisDep,
@@ -38,7 +44,7 @@ async def get_current_user_id(
 
 
 def get_register_use_case(
-    uow: UoWDep,
+    uow: IdentityUowDep,
     redis: RedisDep,
 ) -> RegisterUseCase:
     hasher = PasswordService()
@@ -59,7 +65,7 @@ UserRegisterDepends = Annotated[
 
 def get_login_use_case(
     redis: RedisDep,
-    uow: UoWDep,
+    uow: IdentityUowDep,
 ):
     password = PasswordService()
     jwt_service = JWTService(redis=redis)
@@ -71,7 +77,7 @@ def get_login_use_case(
 UserLoginDepends = Annotated[LoginUseCase, Depends(get_login_use_case)]
 
 
-def get_user_use_case(uow: UoWDep):
+def get_user_use_case(uow: IdentityUowDep):
     return GetCurrentUserUseCase(uow=uow)
 
 
@@ -83,18 +89,18 @@ GetCurrentUserDepends = Annotated[
 async def check_user_black_wall(
     redis: RedisDep,
     user: dict = Depends(get_current_user_id),
-):
+) -> dict:
     check = await redis.get(f"black:list:{user["sub"]}")
     if check is not None:
         raise HTTPException(status_code=403, detail="User already blacklisted")
     return user
 
 
-UserPKDepends = Annotated[int, Depends(check_user_black_wall)]
+UserDepends = Annotated[dict, Depends(check_user_black_wall)]
 
 
 def get_activate_service(
-    uow: UoWDep,
+    uow: IdentityUowDep,
     redis: RedisDep,
 ) -> UpdateStatusUseCase:
     return UpdateStatusUseCase(uow=uow, redis=redis)

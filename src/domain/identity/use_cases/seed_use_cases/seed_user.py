@@ -1,5 +1,8 @@
 import logging
 
+from src.domain.content.use_cases.profile.dependencies import (
+    create_new_profile_factory,
+)
 from src.domain.identity.schemas.roles import RolesEnum
 from src.domain.identity.schemas.users import UserStatus
 from src.domain.identity.services.password_service import PasswordService
@@ -25,7 +28,8 @@ class RootUserUseCase:
                 role=RolesEnum.ADMIN.value,
                 status=UserStatus.ACTIVE,
             )
-            await uow.profiles.create_profile(
+            profile = await create_new_profile_factory(
                 user_pk=admin.pk, username=username
             )
+            logger.info(msg=f"{profile.username} created")
             await uow.commit()

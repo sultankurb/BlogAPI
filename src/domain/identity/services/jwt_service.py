@@ -7,7 +7,6 @@ from redis.asyncio import Redis
 
 from src.config import settings
 from src.config.exception import ApplicationException
-from src.infrastructure.redis import connection
 
 PRIVATE_KEY = settings.jwt.private_key.read_text()
 PUBLIC_KEY = settings.jwt.public_key.read_text()

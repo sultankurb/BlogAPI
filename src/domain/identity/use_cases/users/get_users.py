@@ -1,4 +1,7 @@
 from src.config.exception import ForbiddenException
+from src.domain.content.use_cases.profile.dependencies import (
+    get_profile_by_pk_factory,
+)
 from src.domain.identity.schemas.users import (
     ProfileModel,
     UserReadModel,
@@ -18,7 +21,7 @@ class GetCurrentUserUseCase:
                 raise ForbiddenException(
                     message="You are not verified user"
                 )
-            profile = await uow.profiles.get_profile_by_pk(pk=user_pk)
+            profile = await get_profile_by_pk_factory(pk=user_pk)
             return UserReadModel(
                 email=user.email,
                 status=user.status,

@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, List
 from sqlalchemy import BigInteger, Enum, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.domain.identity.dto import UserStatus
+from src.domain.identity.schemas.users import UserStatus
 from src.infrastructure.database.models.base import BaseORM
 
 if TYPE_CHECKING:

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, BackgroundTasks, Response, status
+from fastapi import APIRouter, BackgroundTasks, status
 
 from src.domain.identity.schemas.token import Token
 from src.domain.identity.schemas.users import (
@@ -9,8 +9,8 @@ from src.domain.identity.schemas.users import (
 from src.presentation.api.identity.dependencies import (
     GetCurrentUserDepends,
     UserActivateDepends,
+    UserDepends,
     UserLoginDepends,
-    UserPKDepends,
     UserRegisterDepends,
 )
 
@@ -40,28 +40,27 @@ async def register_new_user(
 async def login_user(
     login_schema: LoginSchemas,
     user_login: UserLoginDepends,
-    response: Response,
 ):
     tokens = await user_login.execute(
         email=login_schema.email, password=login_schema.password
     )
-    response.set_cookie(
-        key="access_token", value=tokens.access_token, httponly=True
-    )
     return tokens
 
 
-@users_router.post(path="/get/current/user/", response_model=UserReadModel)
+@users_router.get(path="/get/current/user/", response_model=UserReadModel)
 async def get_current_user(
-    user_pk: UserPKDepends,
+    user_credentials: UserDepends,
     user_service: GetCurrentUserDepends,
 ):
-    user = await user_service.execute(user_pk=user_pk)
+    user = await user_service.execute(user_pk=int(user_credentials["sub"]))
     return user
 
 
-@users_router.post(path="/verify/current/user/")
+@users_router.post(
+    path="/verify/current/user/",
+    status_code=status.HTTP_204_NO_CONTENT
+)
 async def verify_user(
-    code: int, user_service: UserActivateDepends, user_pk: UserPKDepends
+    code: int, user_service: UserActivateDepends, user: UserDepends
 ):
-    await user_service.execute(code=code, user_pk=user_pk)
+    await user_service.execute(code=code, user_pk=int(user["sub"]))
