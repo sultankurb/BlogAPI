@@ -1,18 +1,17 @@
 from typing import List
 
 from src.config.exception import NotFoundException
-from src.domain.content.dto import PostsFilter
-from src.domain.content.schemas.posts import PostsRead
-from src.infrastructure.database import UnitOfWork
+from src.domain.content.schemas.posts import PostsFilters, PostsRead
+from src.domain.content.use_cases.uow import ContentUow
 
 
 class ReadPostsUseCase:
-    def __init__(self, uow: UnitOfWork) -> None:
+    def __init__(self, uow: ContentUow) -> None:
         self._uow = uow
 
     async def execute(
             self,
-            posts_filters: PostsFilter
+            posts_filters: PostsFilters,
     ) -> List[PostsRead | None]:
         async with self._uow as uow:
             posts = await uow.posts.get_posts(
@@ -25,7 +24,7 @@ class ReadPostsUseCase:
             ]
 
 class ReadOnePostUseCase:
-    def __init__(self, uow: UnitOfWork) -> None:
+    def __init__(self, uow: ContentUow) -> None:
         self._uow = uow
 
     async def execute(self, pk: int) -> PostsRead | None:

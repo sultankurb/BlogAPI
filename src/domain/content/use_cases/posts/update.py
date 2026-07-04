@@ -1,10 +1,10 @@
 from src.config.exception import ForbiddenException, NotFoundException
 from src.domain.content.schemas.posts import PostsUpdate
-from src.infrastructure.database import UnitOfWork
+from src.domain.content.use_cases.uow import ContentUow
 
 
 class PostUpdateUseCase:
-    def __init__(self, uow: UnitOfWork) -> None:
+    def __init__(self, uow: ContentUow) -> None:
         self._uow = uow
 
     async def execute(self, post_pk: int, user: dict, data: PostsUpdate):
@@ -15,7 +15,7 @@ class PostUpdateUseCase:
             if post.author_pk == int(user["sub"]) or "admin" in user["roles"]:
                 result = await uow.posts.update_post(
                     pk=post.pk,
-                    data=data
+                    post=data
                 )
                 await uow.commit()
                 return result
