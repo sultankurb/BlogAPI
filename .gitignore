@@ -141,3 +141,4 @@ __marimo__/
 !.env.example
 !docker/postgres.env.exaple
 !docker/redis.acl.example
+postgres_data
