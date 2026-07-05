@@ -27,20 +27,27 @@ class PostsRepository(BaseRepository[PostsORM]):
         stmt = select(self._model_cls)
 
         if posts_filter.slug is not None:
-            stmt.where(self._model_cls.slug == posts_filter.slug)
+            stmt = stmt.where(self._model_cls.slug == posts_filter.slug)
 
         if posts_filter.title is not None:
-            stmt.where(self._model_cls.title == posts_filter.title)
+            stmt = stmt.where(self._model_cls.title == posts_filter.title)
 
         if posts_filter.author_pk is not None:
-            stmt.where(self._model_cls.author_pk == posts_filter.author_pk)
+            stmt = stmt.where(
+                self._model_cls.author_pk == posts_filter.author_pk
+            )
 
         if posts_filter.last_seen_pk is not None:
-            stmt.where(self._model_cls.pk < posts_filter.last_seen_pk)
+            stmt = stmt.where(self._model_cls.pk > posts_filter.last_seen_pk)
 
-        posts = await self._session.execute(stmt)
+        stmt = stmt.order_by(self._model_cls.pk.asc())
 
-        return posts.scalars().all()
+        stmt = stmt.limit(posts_filter.limit)
+
+        result = await self._session.execute(stmt)
+
+        return result.scalars().all()
+
 
     async def create_new_post(
             self,

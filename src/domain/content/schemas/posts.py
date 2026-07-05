@@ -35,6 +35,7 @@ class PostsFilters(BaseModel):
     slug: str | None = None
     author_pk: int | None = None
     last_seen_pk: int | None = None
+    limit: int = 50
 
     class Config:
         populate_by_name = True

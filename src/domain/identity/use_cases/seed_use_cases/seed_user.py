@@ -28,8 +28,9 @@ class RootUserUseCase:
                 role=RolesEnum.ADMIN.value,
                 status=UserStatus.ACTIVE,
             )
+            await uow.commit()
             profile = await create_new_profile_factory(
                 user_pk=admin.pk, username=username
             )
             logger.info(msg=f"{profile.username} created")
-            await uow.commit()
+
