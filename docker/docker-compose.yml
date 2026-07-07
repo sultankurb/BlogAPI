@@ -4,8 +4,6 @@ services:
     restart: always
     container_name: rediska
     command: redis-server --aclfile /etc/redis/users.acl && redis-server --appendonly yes
-    ports:
-      - "0.0.0.0:6379:6379"
     volumes:
       - ./users.acl:/etc/redis/users.acl
     networks:
@@ -14,13 +12,21 @@ services:
   pg_db:
     image: postgres:17-alpine3.23
     container_name: pg_db
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
     env_file:
       - .env
-    ports:
-      - "0.0.0.0:5432:5432"
     restart: always
     networks:
       - internal_network
+
+  mail:
+    image: axllent/mailpit:latest
+    container_name: mail
+    restart: always
+    ports:
+      - "0.0.0.0:1025:1025"
+      - "0.0.0.0:8025:8025"
 
   app:
     build:
@@ -33,6 +39,7 @@ services:
     depends_on:
       - pg_db
       - rediska
+      - mail
     networks:
       - internal_network
 
