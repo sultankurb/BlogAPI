@@ -12,6 +12,7 @@ from src.domain.identity.services import (
 from src.domain.identity.use_cases import (
     GetCurrentUserUseCase,
     LoginUseCase,
+    RefreshJWTUseCase,
     RegisterUseCase,
     UpdateStatusUseCase,
 )
@@ -117,4 +118,17 @@ def get_activate_service(
 
 UserActivateDepends = Annotated[
     UpdateStatusUseCase, Depends(get_activate_service)
+]
+
+
+def get_refresh_jwt_use_case(
+    uow: IdentityUowDep,
+    redis: RedisDep,
+):
+    jwt_service = JWTService(redis=redis)
+    return RefreshJWTUseCase(uow=uow, redis=redis, jwt_service=jwt_service)
+
+UserRefreshJWTDepends = Annotated[
+    RefreshJWTUseCase,
+    Depends(get_refresh_jwt_use_case)
 ]

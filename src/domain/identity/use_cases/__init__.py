@@ -10,6 +10,7 @@ from src.domain.identity.use_cases.users.activate_user_usecase import (
     UpdateStatusUseCase,
 )
 from src.domain.identity.use_cases.users.get_users import GetCurrentUserUseCase
+from src.domain.identity.use_cases.users.refresh import RefreshJWTUseCase
 
 __all__ = [
     "RootUserUseCase",
@@ -18,4 +19,5 @@ __all__ = [
     "SeedRolesUseCase",
     "LoginUseCase",
     "GetCurrentUserUseCase",
+    "RefreshJWTUseCase",
 ]

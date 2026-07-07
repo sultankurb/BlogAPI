@@ -15,6 +15,12 @@ class UsersRepository(BaseRepository[UsersORM]):
     def __init__(self, session: AsyncSession):
         super().__init__(session, model_cls=UsersORM)
 
+    async def _with_roles(self, stmt):
+        stmt = stmt.options(joinedload(self._model_cls.roles))
+        result = await self._session.execute(stmt)
+        return result.scalar()
+
+
     async def get_user_by_email(self, email: str) -> UsersORM | None:
         result = await self._get_by_filters(filed="email", value=email)
         return result
@@ -26,10 +32,14 @@ class UsersRepository(BaseRepository[UsersORM]):
         stmt = (
             select(self._model_cls)
             .where(self._model_cls.email == email.lower())
-            .options(joinedload(self._model_cls.roles))
         )
-        result = await self._session.execute(stmt)
-        return result.scalars().unique().first()
+        result = await self._with_roles(stmt)
+        return result
+
+    async def get_by_pk_with_roles(self, pk: int) -> UsersORM | None:
+        stmt = select(self._model_cls).where(self._model_cls.pk == pk)
+        result = await self._with_roles(stmt)
+        return result
 
     async def get_filtered_users(
         self,

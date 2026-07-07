@@ -11,6 +11,7 @@ from src.presentation.api.identity.dependencies import (
     UserActivateDepends,
     UserDepends,
     UserLoginDepends,
+    UserRefreshJWTDepends,
     UserRegisterDepends,
 )
 
@@ -64,3 +65,15 @@ async def verify_user(
     code: int, user_service: UserActivateDepends, user: UserDepends
 ):
     await user_service.execute(code=code, user_pk=int(user["sub"]))
+
+
+@users_router.post(
+    path="/refresh/tokens/",
+    response_model=Token,
+)
+async def get_new_tokens(
+        last_refresh_toke: str,
+        refresh: UserRefreshJWTDepends
+):
+    tokens = await refresh.execute(refresh_toke=last_refresh_toke)
+    return tokens
