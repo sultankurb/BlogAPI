@@ -2,6 +2,7 @@ from typing import Sequence
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from src.domain.content.schemas.posts import (
     PostsCreate,
@@ -24,7 +25,10 @@ class PostsRepository(BaseRepository[PostsORM]):
             self,
             posts_filter: PostsFilters
     ) -> Sequence[PostsORM]:
-        stmt = select(self._model_cls)
+        stmt = (
+            select(self._model_cls)
+            .options(joinedload(self._model_cls.author))
+        )
 
         if posts_filter.slug is not None:
             stmt = stmt.where(self._model_cls.slug == posts_filter.slug)
@@ -58,8 +62,6 @@ class PostsRepository(BaseRepository[PostsORM]):
             title=post.title,
             slug=post.slug,
             content=post.content,
-            created_at=post.created_at,
-            updated_at=post.updated_at,
             author_pk=author_pk,
         )
         result = await self._add(obj=post_orm)

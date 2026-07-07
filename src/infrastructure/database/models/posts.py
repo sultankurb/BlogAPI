@@ -1,7 +1,12 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import BigInteger, ForeignKey, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.infrastructure.database.models.base import BaseORM
+
+if TYPE_CHECKING:
+    from src.infrastructure.database.models.profiles import ProfilesORM
 
 
 class PostsORM(BaseORM):
@@ -15,4 +20,9 @@ class PostsORM(BaseORM):
         ForeignKey(
             column="profiles.user_pk", onupdate="CASCADE", ondelete="CASCADE"
         ),
+    )
+    author: Mapped["ProfilesORM"] = relationship(
+        argument="ProfilesORM",
+        back_populates="posts",
+        primaryjoin="ProfilesORM.user_pk == PostsORM.author_pk",
     )

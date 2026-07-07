@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from src.domain.identity.repositories.users import UsersRepository
 from src.domain.identity.services import (
     JWTService,
     PasswordService,
@@ -25,6 +26,7 @@ def get_identity_uow() -> IdentityUow:
     return IdentityUow(session=session_factory)
 
 IdentityUowDep = Annotated[IdentityUow, Depends(get_identity_uow)]
+
 
 async def get_current_user_id(
     redis: RedisDep,
@@ -91,9 +93,16 @@ async def check_user_black_wall(
     user: dict = Depends(get_current_user_id),
 ) -> dict:
     check = await redis.get(f"black:list:{user["sub"]}")
+
     if check is not None:
         raise HTTPException(status_code=403, detail="User already blacklisted")
-    return user
+    async with session_factory() as session:
+        user_db = await UsersRepository(
+            session=session
+        ).get_user_by_pk(pk=int(user["sub"]))
+        if user_db is None:
+            raise HTTPException(status_code=401, detail="User not found")
+        return user
 
 
 UserDepends = Annotated[dict, Depends(check_user_black_wall)]

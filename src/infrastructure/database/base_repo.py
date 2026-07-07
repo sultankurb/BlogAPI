@@ -1,7 +1,6 @@
-from abc import ABC, abstractmethod
 from typing import Any, Generic, Mapping, Type, TypeVar
 
-from sqlalchemy import select, update
+from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 OrmModel = TypeVar("OrmModel")
@@ -47,9 +46,10 @@ class BaseRepository(Generic[OrmModel]):
         return result
 
     async def _delete_by_pk(self, pk: int) -> bool:
-        obj = await self._get_by_pk(pk)
-        if obj:
-            await self._session.delete(obj)
-            await self._session.flush()
-            return True
-        return False
+        stmt = (
+            delete(self._model_cls)
+            .where(self._model_cls.pk == pk)
+        )
+        result = await self._session.execute(stmt)
+        await self._session.flush()
+        return result.rowcount > 0

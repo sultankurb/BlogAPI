@@ -1,8 +1,14 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, List
+
 from sqlalchemy import BigInteger, ForeignKey, Text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.infrastructure.database.models.base import BaseORM
 
+if TYPE_CHECKING:
+    from src.infrastructure.database.models.posts import PostsORM
 
 class ProfilesORM(BaseORM):
     __tablename__ = "profiles"
@@ -15,3 +21,7 @@ class ProfilesORM(BaseORM):
     first_name: Mapped[str] = mapped_column(Text(), nullable=True)
     last_name: Mapped[str] = mapped_column(Text(), nullable=True)
     biography: Mapped[str] = mapped_column(Text(), nullable=True)
+    posts: Mapped[List[PostsORM]] = relationship(
+        argument='PostsORM',
+        back_populates="author"
+    )
