@@ -3,6 +3,11 @@ from typing import Annotated
 from fastapi import Depends
 
 from src.domain.content.use_cases import ProfilesUpdateUseCase
+from src.domain.content.use_cases.comments import (
+    CommentsCreateUseCase,
+    CommentsDeleteUsaCase,
+    CommentsUpdateUsaCase,
+)
 from src.domain.content.use_cases.posts import (
     PostCreateUseCase,
     PostDeleteUseCase,
@@ -54,3 +59,27 @@ def update_one_post(uow: ContentUowDep) -> PostUpdateUseCase:
 
 UpdatePostDepends = Annotated[PostUpdateUseCase, Depends(update_one_post)]
 
+
+def create_new_comments(uow: ContentUowDep) -> CommentsCreateUseCase:
+    return CommentsCreateUseCase(uow=uow)
+
+CreateCommentDepends = Annotated[
+    CommentsCreateUseCase,
+    Depends(create_new_comments)
+]
+
+def delete_comments(uow: ContentUowDep) -> CommentsDeleteUsaCase:
+    return CommentsDeleteUsaCase(uow=uow)
+
+DeleteCommentDepends = Annotated[
+    CommentsDeleteUsaCase,
+    Depends(delete_comments)
+]
+
+def update_comments(uow: ContentUowDep) -> CommentsUpdateUsaCase:
+    return CommentsUpdateUsaCase(uow=uow)
+
+UpdateCommentsDepends = Annotated[
+    CommentsUpdateUsaCase,
+    Depends(update_comments)
+]

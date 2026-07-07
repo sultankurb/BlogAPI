@@ -27,7 +27,7 @@ class ReadOnePostUseCase:
     def __init__(self, uow: ContentUow) -> None:
         self._uow = uow
 
-    async def execute(self, pk: int) -> PostsRead | None:
+    async def execute(self, pk: int):
         async with self._uow as uow:
             post = await uow.posts.get_post_by_pk(pk=pk)
             if post is None:

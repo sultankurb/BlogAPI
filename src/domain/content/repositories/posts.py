@@ -10,7 +10,7 @@ from src.domain.content.schemas.posts import (
     PostsUpdate,
 )
 from src.infrastructure.database.base_repo import BaseRepository
-from src.infrastructure.database.models import PostsORM
+from src.infrastructure.database.models import CommentsORM, PostsORM
 
 
 class PostsRepository(BaseRepository[PostsORM]):
@@ -18,8 +18,11 @@ class PostsRepository(BaseRepository[PostsORM]):
         super().__init__(session, model_cls=PostsORM)
 
     async def get_post_by_pk(self, pk: int) -> PostsORM | None:
-        post = await self._get_by_pk(pk=pk)
-        return post
+        stmt = select(self._model_cls).where(self._model_cls.pk == pk).options(
+            joinedload(self._model_cls.comments).joinedload(CommentsORM.author)
+        ).options(joinedload(self._model_cls.author))
+        result = await self._session.execute(stmt)
+        return result.scalars().unique().first()
 
     async def get_posts(
             self,

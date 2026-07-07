@@ -31,7 +31,7 @@ async def read_posts(
     return posts
 
 
-@posts_router.get(path="/{post_pk}", response_model=PostsRead)
+@posts_router.get(path="/{post_pk}")
 async def get_post_details(post_pk: int, read: ReadOnePostDepends):
     post = await read.execute(pk=post_pk)
     return post

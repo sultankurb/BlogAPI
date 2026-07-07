@@ -8,7 +8,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.infrastructure.database.models.base import BaseORM
 
 if TYPE_CHECKING:
+    from src.infrastructure.database.models.comments import CommentsORM
     from src.infrastructure.database.models.posts import PostsORM
+
 
 class ProfilesORM(BaseORM):
     __tablename__ = "profiles"
@@ -23,5 +25,9 @@ class ProfilesORM(BaseORM):
     biography: Mapped[str] = mapped_column(Text(), nullable=True)
     posts: Mapped[List[PostsORM]] = relationship(
         argument='PostsORM',
+        back_populates="author"
+    )
+    comments: Mapped[List[CommentsORM]] = relationship(
+        argument='CommentsORM',
         back_populates="author"
     )

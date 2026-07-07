@@ -1,9 +1,10 @@
 from datetime import datetime
+from typing import List
 
 from pydantic import BaseModel
 
 from src.domain.content.schemas.profile import ProfileReadModel
-
+from src.domain.content.schemas.comments import CommentsRead
 
 class PostsBaseModel(BaseModel):
     title: str
@@ -27,6 +28,7 @@ class PostsRead(PostsBaseModel):
     created_at: datetime
     updated_at: datetime
     author: ProfileReadModel | None = None
+    comments: List[CommentsRead] | None = None
 
     class Config:
         from_attributes = True
